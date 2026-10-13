@@ -79,7 +79,13 @@
       grid-template-columns: 310px minmax(0, 1fr);
       gap: 56px;
     }
-    .content { min-width: 0; padding-top: 64px; }
+    .content {
+      min-width: 0;
+      min-height: 100vh;
+      padding-top: 64px;
+      display: flex;
+      flex-direction: column;
+    }
 
     /* ---------- Profile sidebar ---------- */
     .profile {
@@ -209,7 +215,8 @@
         gap: 0;
         padding: 0 16px;
       }
-      .content { padding-top: 32px; }
+      .layout { min-height: 100vh; grid-template-rows: auto 1fr; }
+      .content { padding-top: 32px; min-height: 0; }
       .profile {
         position: static;
         height: auto;
@@ -272,7 +279,7 @@
     nav a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 
     /* ---------- Panels ---------- */
-    main { min-height: 70vh; }
+    main { flex: 1; }
     section { padding: 40px 0 8px; animation: fade-in .4s ease; }
     section[hidden] { display: none; }
     @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } }
@@ -525,7 +532,7 @@
     }
 
     footer {
-      padding: 64px 0 40px;
+      padding: 48px 0 28px;
       text-align: center;
       font-size: 0.8125rem;
       color: var(--faint);
@@ -661,8 +668,9 @@
       <ol class="stops" id="stops"></ol>
     </section>
 
-    <footer>© 2026 Wei Rui · made somewhere in the Weiniverse ✦</footer>
       </main>
+
+      <footer>© 2026 Wei Rui · made somewhere in the Weiniverse ✦</footer>
     </div>
   </div>
 
