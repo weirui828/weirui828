@@ -145,57 +145,6 @@
     }
     .links svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
 
-    .section-title {
-      margin-top: 44px;
-      align-self: flex-start;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .maps {
-      width: 100%;
-      margin-top: 12px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    @media (max-width: 480px) {
-      .maps { grid-template-columns: 1fr; }
-    }
-
-    .map-card {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      background: var(--card);
-      box-shadow: var(--shadow);
-      text-align: left;
-    }
-    .map-card iframe {
-      display: block;
-      width: 100%;
-      height: 200px;
-      border: 0;
-    }
-    .map-label {
-      padding: 12px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
-    }
-    .map-label strong { font-weight: 600; }
-    .map-label span {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--accent);
-    }
-
     footer {
       margin-top: 44px;
       font-size: 0.8125rem;
@@ -231,26 +180,6 @@
         </a>
       </li>
     </ul>
-
-    <h2 class="section-title">Where I am</h2>
-    <div class="maps">
-      <div class="map-card">
-        <iframe
-          src="https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1sSan+Francisco,+CA!6i11"
-          title="Map of San Francisco"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"></iframe>
-        <div class="map-label"><strong>San Francisco</strong><span>Now</span></div>
-      </div>
-      <div class="map-card">
-        <iframe
-          src="https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1sSydney+NSW,+Australia!6i11"
-          title="Map of Sydney"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"></iframe>
-        <div class="map-label"><strong>Sydney</strong><span>2027</span></div>
-      </div>
-    </div>
 
     <footer>© 2026 Wei Rui · weiniverse.com</footer>
   </main>
