@@ -2,7 +2,9 @@
 
 **AI / ML Engineer** · 📍 San Francisco → 🇦🇺 Sydney (2027)
 
-I build AI that dreams, teach machines to grade machines, and hunt golden hour on mountain trails.
+I build AI that dreams,<br />
+teach machines to grade machines,<br />
+and hunt golden hour on mountain trails.<br />
 📷 Photography · 🥾 Hiking
 
 <br />
