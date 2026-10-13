@@ -798,7 +798,7 @@
       const stopsEl = document.getElementById("stops");
 
       let ready = null, visible = false, raf = 0, last = 0;
-      let projection, path, dots = [], size = 0, radius = 0;
+      let projection, path, land, dots = [], size = 0, radius = 0;
       // Camera: rotation [λ, φ] and zoom (1 = whole globe fits)
       let cam = { rot: [-CITIES[0].coord[0], -CITIES[0].coord[1]], zoom: 3 };
       let tween = null;                   // { from, to, start, dur }
@@ -832,7 +832,7 @@
       async function init() {
         for (const src of LIBS) await loadScript(src);
         const world = await (await fetch(ATLAS)).json();
-        const land = topojson.feature(world, world.objects.land);
+        land = topojson.feature(world, world.objects.land);
 
         // Rasterise land once onto a small equirectangular canvas, then sample it into a dot grid
         const W = 720, H = 360;
@@ -886,7 +886,7 @@
         const mid = d3.geoInterpolate(a, b)(0.5);
         const d = d3.geoDistance(a, b);
         const zoom = Math.max(1, Math.min(9, 1.1 / (d + 0.12)));
-        return { rot: [-mid[0], -mid[1] * 0.8], zoom, d };
+        return { rot: [-mid[0], -mid[1]], zoom, d };
       }
 
       // ----- story -----
@@ -987,6 +987,10 @@
         ctx.strokeStyle = "rgba(167, 139, 250, .25)";
         ctx.lineWidth = 1;
         ctx.stroke();
+
+        // Faint filled land underneath, so close-up views still show the coastline
+        ctx.fillStyle = "rgba(154, 166, 255, .07)";
+        ctx.beginPath(); path(land); ctx.fill();
 
         // Land as dots, dimmer towards the limb for depth
         const dotR = Math.max(0.9, Math.min(2.2, 0.0045 * r));
