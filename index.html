@@ -346,18 +346,25 @@
     .posts .empty { padding: 16px 20px; color: var(--muted); }
 
     /* Photography */
+    /* Justified row: every photo keeps its own aspect ratio (--ar) at a shared height */
+    /* The gallery breaks out of the text column: up to 1100px wide, 16px gutters on small screens */
+    #photography .section-head,
+    .photos { margin-inline: calc(50% - min(550px, 50vw - 16px)); }
     .photos {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
       gap: 14px;
     }
+    .photos figure {
+      flex: var(--ar) 1 0;
+      min-width: 0;
+    }
     @media (max-width: 600px) {
-      .photos { grid-template-columns: 1fr; }
+      .photos { flex-direction: column; }
     }
     .photo {
       position: relative;
       display: block;
-      aspect-ratio: 4 / 5;
+      aspect-ratio: var(--ar);
       overflow: hidden;
       border-radius: var(--radius);
       border: 1px solid var(--line);
@@ -494,19 +501,19 @@
         <a class="more" href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener">Follow on Instagram →</a>
       </div>
       <div class="photos">
-        <figure>
+        <figure style="--ar: 0.891">
           <a class="photo" href="https://www.instagram.com/p/DSyv6jMEUTl/" target="_blank" rel="noopener">
             <img src="assets/photos/weiniverse-burney-falls.jpg" alt="Burney Falls pouring over mossy cliffs after days of rain" loading="lazy" onerror="this.remove()" />
             <figcaption><span class="place">Burney Falls</span><span class="meta">Northern California</span></figcaption>
           </a>
         </figure>
-        <figure>
+        <figure style="--ar: 1.361">
           <a class="photo" href="https://www.instagram.com/p/C0YJR4trBM1/" target="_blank" rel="noopener">
             <img src="assets/photos/weiniverse-mission-beach.jpg" alt="Palm trees silhouetted against a sunset, reflected in glass-still water at Mission Beach" loading="lazy" onerror="this.remove()" />
             <figcaption><span class="place">Mission Beach</span><span class="meta">San Diego</span></figcaption>
           </a>
         </figure>
-        <figure>
+        <figure style="--ar: 1.245">
           <a class="photo" href="https://www.instagram.com/p/C3egDPhunjG/" target="_blank" rel="noopener">
             <img src="assets/photos/weiniverse-zhuhai-art-center.jpg" alt="A butterfly-shaped art center reflected in a lake in Zhuhai" loading="lazy" onerror="this.remove()" />
             <figcaption><span class="place">Zhuhai Art Center</span><span class="meta">Zhuhai, China</span></figcaption>
