@@ -15,20 +15,12 @@ Building things with AI/ML by day — chasing light and trails the rest of the t
   <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" height="40" alt="LinkedIn" />
 </a>
 <br /><br />
-<a href="https://YOUR_BLOG_URL">
-  <img src="https://img.shields.io/badge/Blog-222222?style=for-the-badge&logo=hashnode&logoColor=white" height="40" alt="Blog" />
+<a href="https://medium.com/@wei.rui828">
+  <img src="https://img.shields.io/badge/Blog-222222?style=for-the-badge&logo=medium&logoColor=white" height="40" alt="Blog" />
 </a>
 <br /><br />
 <a href="https://www.instagram.com/weiniverse_photography">
   <img src="https://img.shields.io/badge/Photography-E4405F?style=for-the-badge&logo=instagram&logoColor=white" height="40" alt="Photography" />
-</a>
-<br /><br />
-<a href="https://www.strava.com/athletes/YOUR_STRAVA">
-  <img src="https://img.shields.io/badge/Hiking-FC4C02?style=for-the-badge&logo=strava&logoColor=white" height="40" alt="Hiking" />
-</a>
-<br /><br />
-<a href="mailto:YOUR_EMAIL">
-  <img src="https://img.shields.io/badge/Email_Me-555555?style=for-the-badge&logo=gmail&logoColor=white" height="40" alt="Email" />
 </a>
 
 <br /><br />
