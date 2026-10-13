@@ -47,7 +47,6 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 
     body {
       font-family: "Inter", system-ui, -apple-system, sans-serif;
@@ -144,7 +143,7 @@
     }
     .socials svg { width: 20px; height: 20px; fill: currentColor; }
 
-    /* ---------- Sticky nav ---------- */
+    /* ---------- Tabs ---------- */
     nav {
       position: sticky;
       top: 0;
@@ -172,13 +171,16 @@
       transition: background .15s ease, color .15s ease;
     }
     nav a:hover { color: var(--text); }
-    nav a.active {
+    nav a[aria-selected="true"] {
       background: var(--text);
       color: var(--bg);
     }
+    nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     /* ---------- Sections ---------- */
-    section { padding: 40px 0 8px; }
+    main { min-height: 60vh; }
+    section { padding: 32px 0 8px; }
+    section[hidden] { display: none; }
 
     .section-head {
       display: flex;
@@ -353,15 +355,15 @@
   </div>
 
   <nav aria-label="Sections">
-    <ul>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#writing">Writing</a></li>
-      <li><a href="#photography">Photography</a></li>
+    <ul role="tablist">
+      <li role="presentation"><a href="#projects" id="tab-projects" role="tab" aria-controls="projects" aria-selected="true">Projects</a></li>
+      <li role="presentation"><a href="#writing" id="tab-writing" role="tab" aria-controls="writing" aria-selected="false" tabindex="-1">Writing</a></li>
+      <li role="presentation"><a href="#photography" id="tab-photography" role="tab" aria-controls="photography" aria-selected="false" tabindex="-1">Photography</a></li>
     </ul>
   </nav>
 
   <main class="wrap">
-    <section id="projects">
+    <section id="projects" role="tabpanel" aria-labelledby="tab-projects">
       <div class="section-head">
         <h2>Projects</h2>
         <a class="more" href="https://github.com/weirui828?tab=repositories" target="_blank" rel="noopener">More on GitHub →</a>
@@ -380,7 +382,7 @@
       </div>
     </section>
 
-    <section id="writing">
+    <section id="writing" role="tabpanel" aria-labelledby="tab-writing">
       <div class="section-head">
         <h2>Writing</h2>
         <a class="more" href="https://medium.com/@wei.rui828" target="_blank" rel="noopener">All posts on Medium →</a>
@@ -390,7 +392,7 @@
       </ul>
     </section>
 
-    <section id="photography">
+    <section id="photography" role="tabpanel" aria-labelledby="tab-photography">
       <div class="section-head">
         <h2>Photography</h2>
         <a class="more" href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener">Follow on Instagram →</a>
@@ -439,15 +441,41 @@
       }
     })();
 
-    // Highlight the nav link for the section in view
-    const links = document.querySelectorAll("nav a");
-    const observer = new IntersectionObserver(entries => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        links.forEach(l => l.classList.toggle("active", l.getAttribute("href") === "#" + e.target.id));
-      }
-    }, { rootMargin: "-40% 0px -55% 0px" });
-    document.querySelectorAll("main section").forEach(s => observer.observe(s));
+    // Tabs: show one section at a time; the URL hash (#writing etc.) picks the tab
+    const nav = document.querySelector("nav");
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+    const panels = tabs.map(t => document.getElementById(t.getAttribute("aria-controls")));
+
+    function selectTab(tab, { focus = false, updateHash = true } = {}) {
+      tabs.forEach((t, i) => {
+        const on = t === tab;
+        t.setAttribute("aria-selected", on);
+        t.tabIndex = on ? 0 : -1;
+        panels[i].hidden = !on;
+      });
+      if (focus) tab.focus();
+      if (updateHash) history.replaceState(null, "", tab.getAttribute("href"));
+      // If the tab bar is stuck to the top, bring the new panel's start into view
+      if (window.scrollY > nav.offsetTop) window.scrollTo({ top: nav.offsetTop });
+    }
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener("click", e => {
+        e.preventDefault();
+        selectTab(tab);
+      });
+      tab.addEventListener("keydown", e => {
+        const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+        if (!step) return;
+        e.preventDefault();
+        selectTab(tabs[(i + step + tabs.length) % tabs.length], { focus: true });
+      });
+    });
+
+    const initial = tabs.find(t => t.getAttribute("href") === location.hash) || tabs[0];
+    selectTab(initial, { updateHash: false });
+    // Keep the header in view instead of the browser's jump to the #hash target
+    if (location.hash) window.addEventListener("load", () => window.scrollTo(0, 0));
   </script>
 </body>
 </html>
