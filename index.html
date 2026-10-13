@@ -280,35 +280,29 @@
     }
     .posts .empty { padding: 14px 18px; color: var(--muted); }
 
-    /* Photography */
-    .photos {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+    /* Photography: official Instagram embeds of the pinned posts */
+    .ig-posts {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
     }
-    .photos a {
+    .ig-posts .instagram-media {
+      width: 100% !important;
+      max-width: 540px !important;
+      min-width: 0 !important;
+      margin: 0 !important;
+      border-radius: 14px !important;
+      border: 1px solid var(--border) !important;
+      box-shadow: var(--shadow) !important;
+    }
+    .ig-posts .instagram-media a {
       display: block;
-      aspect-ratio: 1;
-      border-radius: 10px;
-      overflow: hidden;
-      background: var(--tag);
+      padding: 24px;
+      text-align: center;
+      color: var(--accent);
+      font-weight: 600;
     }
-    .photos img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform .3s ease;
-    }
-    .photos a:hover img { transform: scale(1.04); }
-    /* Placeholder tiles until real photos are added */
-    .photos .ph {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(160deg, #fcd9a8, #f08a5d 55%, #6a3d5a);
-    }
-    .photos a:nth-child(2n) .ph { background: linear-gradient(160deg, #a8c6fc, #5d7ff0 55%, #2b2d5a); }
-    .photos a:nth-child(3n) .ph { background: linear-gradient(160deg, #c8e6c9, #5d9a6a 55%, #2d4a3a); }
 
     footer {
       padding: 48px 0 40px;
@@ -397,20 +391,23 @@
         <h2>Photography</h2>
         <a class="more" href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener">Follow on Instagram →</a>
       </div>
-      <!-- Replace each <div class="ph"> with <img src="assets/photos/N.jpg" alt="…" loading="lazy" /> -->
-      <div class="photos">
-        <a href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener" aria-label="Photo 1"><div class="ph"></div></a>
-        <a href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener" aria-label="Photo 2"><div class="ph"></div></a>
-        <a href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener" aria-label="Photo 3"><div class="ph"></div></a>
-        <a href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener" aria-label="Photo 4"><div class="ph"></div></a>
-        <a href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener" aria-label="Photo 5"><div class="ph"></div></a>
-        <a href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener" aria-label="Photo 6"><div class="ph"></div></a>
+      <div class="ig-posts">
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DSyv6jMEUTl/" data-instgrm-version="14">
+          <a href="https://www.instagram.com/p/DSyv6jMEUTl/" target="_blank" rel="noopener">View this photo on Instagram</a>
+        </blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/C0YJR4trBM1/" data-instgrm-version="14">
+          <a href="https://www.instagram.com/p/C0YJR4trBM1/" target="_blank" rel="noopener">View this photo on Instagram</a>
+        </blockquote>
+        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/C3egDPhunjG/" data-instgrm-version="14">
+          <a href="https://www.instagram.com/p/C3egDPhunjG/" target="_blank" rel="noopener">View this photo on Instagram</a>
+        </blockquote>
       </div>
     </section>
 
     <footer>© 2026 Wei Rui · weiniverse.com</footer>
   </main>
 
+  <script async src="https://www.instagram.com/embed.js"></script>
   <script>
     // Latest Medium posts, refreshed daily by .github/workflows/update-posts.yml
     (async () => {
@@ -454,6 +451,7 @@
         panels[i].hidden = !on;
       });
       if (focus) tab.focus();
+      if (tab.id === "tab-photography") window.instgrm?.Embeds.process();
       if (updateHash) history.replaceState(null, "", tab.getAttribute("href"));
       // If the tab bar is stuck to the top, bring the new panel's start into view
       if (window.scrollY > nav.offsetTop) window.scrollTo({ top: nav.offsetTop });
