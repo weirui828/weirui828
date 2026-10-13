@@ -19,7 +19,7 @@ Building things with AI/ML by day — chasing light and trails the rest of the t
   <img src="https://img.shields.io/badge/Blog-222222?style=for-the-badge&logo=hashnode&logoColor=white" height="40" alt="Blog" />
 </a>
 <br /><br />
-<a href="https://www.instagram.com/YOUR_INSTAGRAM">
+<a href="https://www.instagram.com/weiniverse_photography">
   <img src="https://img.shields.io/badge/Photography-E4405F?style=for-the-badge&logo=instagram&logoColor=white" height="40" alt="Photography" />
 </a>
 <br /><br />
