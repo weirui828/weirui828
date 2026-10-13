@@ -1,9 +1,5 @@
 <div align="center">
 
-<img src="https://github.com/weirui828.png" width="120" style="border-radius: 50%;" alt="Wei Rui" />
-
-# Wei Rui
-
 **AI / ML Engineer** · 📍 San Francisco → 🇦🇺 Sydney (2027)
 
 Building things with AI/ML by day — chasing light and trails the rest of the time.
