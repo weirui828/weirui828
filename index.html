@@ -3,238 +3,303 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#05060f" />
   <title>Wei Rui · Weiniverse</title>
-  <meta name="description" content="Wei Rui — AI/ML engineer. Projects, writing and photography. San Francisco now, Sydney in 2027." />
+  <meta name="description" content="Wei Rui — AI/ML engineer and photographer. Projects, writing and photography. San Francisco now, Sydney in 2027." />
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://weiniverse.com/" />
   <meta property="og:title" content="Wei Rui · Weiniverse" />
-  <meta property="og:description" content="AI/ML engineer. Projects, writing and photography. San Francisco → Sydney." />
+  <meta property="og:description" content="AI/ML engineer and photographer. San Francisco → Sydney." />
   <meta property="og:image" content="https://github.com/weirui828.png" />
   <meta name="twitter:card" content="summary" />
 
   <link rel="icon" href="https://github.com/weirui828.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --bg: #f4f2ee;
-      --bg-glow: #e7e2d8;
-      --card: #ffffff;
-      --text: #1c1b19;
-      --muted: #6b675f;
-      --border: #e4e0d8;
-      --tag: #f1ede6;
-      --accent: #c2410c;
-      --nav-bg: rgba(244, 242, 238, .82);
-      --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #121212;
-        --bg-glow: #1e1b17;
-        --card: #1a1a1a;
-        --text: #f1eee8;
-        --muted: #a39e94;
-        --border: #2c2b28;
-        --tag: #252421;
-        --accent: #fb923c;
-        --nav-bg: rgba(18, 18, 18, .82);
-        --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
-      }
+      --bg: #05060f;
+      --text: #e8ebff;
+      --muted: #8d93b8;
+      --faint: #5b6087;
+      --glass: rgba(255, 255, 255, .04);
+      --glass-hover: rgba(255, 255, 255, .07);
+      --line: rgba(255, 255, 255, .09);
+      --violet: #a78bfa;
+      --cyan: #22d3ee;
+      --gold: #fbbf24;
+      --glow: 0 0 0 1px rgba(167, 139, 250, .35), 0 10px 40px -10px rgba(167, 139, 250, .45);
+      --radius: 18px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: "Inter", system-ui, -apple-system, sans-serif;
-      background: radial-gradient(ellipse at top, var(--bg-glow), var(--bg) 60%) fixed, var(--bg);
+      background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      line-height: 1.5;
+      line-height: 1.55;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     a { color: inherit; }
 
+    /* ---------- Space backdrop ---------- */
+    #stars {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .nebula {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(60vw 45vh at 15% 10%, rgba(124, 58, 237, .22), transparent 70%),
+        radial-gradient(50vw 40vh at 90% 25%, rgba(34, 211, 238, .12), transparent 70%),
+        radial-gradient(70vw 50vh at 50% 110%, rgba(251, 191, 36, .08), transparent 70%),
+        var(--bg);
+    }
+
     .wrap {
-      max-width: 680px;
+      max-width: 760px;
       margin: 0 auto;
       padding: 0 16px;
     }
 
-    /* ---------- Header ---------- */
+    /* ---------- Hero ---------- */
     header {
-      padding: 56px 0 28px;
+      min-height: 80vh;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       text-align: center;
+      padding: 64px 0 40px;
     }
 
-    .avatar {
-      width: 112px;
-      height: 112px;
+    .avatar-ring {
+      width: 104px;
+      height: 104px;
+      padding: 3px;
+      border-radius: 50%;
+      background: conic-gradient(from 200deg, var(--violet), var(--cyan), var(--gold), var(--violet));
+      box-shadow: 0 0 40px rgba(167, 139, 250, .45);
+      animation: spin 18s linear infinite;
+    }
+    .avatar-ring img {
+      display: block;
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      border: 3px solid var(--card);
-      box-shadow: var(--shadow);
+      border: 3px solid var(--bg);
+      animation: spin 18s linear infinite reverse;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .wordmark {
+      margin-top: 28px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2.4rem, 9vw, 4.75rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: linear-gradient(100deg, #fff 10%, var(--violet) 45%, var(--cyan) 80%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 24px rgba(167, 139, 250, .35));
     }
 
     h1 {
-      margin-top: 18px;
-      font-size: 1.75rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+      margin-top: 16px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
     }
-
-    .role {
-      margin-top: 4px;
-      font-weight: 500;
-      color: var(--muted);
-    }
+    h1 .role { color: var(--muted); font-weight: 500; }
 
     .route {
-      margin-top: 12px;
+      margin-top: 14px;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 6px 14px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--line);
       border-radius: 999px;
-      background: var(--card);
+      background: var(--glass);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       font-size: 0.875rem;
-      font-weight: 500;
+      color: var(--muted);
     }
-    .route .arrow { color: var(--accent); }
+    .route b { color: var(--text); font-weight: 500; }
+    .route .orbit { color: var(--gold); }
 
     .bio {
-      margin-top: 18px;
+      margin-top: 22px;
+      font-size: 1.0625rem;
       color: var(--muted);
-      max-width: 420px;
+    }
+    .bio em {
+      font-style: normal;
+      color: var(--text);
     }
 
     .socials {
       list-style: none;
-      margin-top: 22px;
+      margin-top: 28px;
       display: flex;
-      gap: 10px;
+      gap: 12px;
     }
     .socials a {
       display: grid;
       place-items: center;
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--card);
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--glass);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       color: var(--text);
-      box-shadow: var(--shadow);
-      transition: transform .15s ease, background .15s ease, color .15s ease;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
     }
     .socials a:hover,
     .socials a:focus-visible {
-      background: var(--text);
-      color: var(--bg);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
+      background: var(--glass-hover);
+      box-shadow: var(--glow);
       outline: none;
     }
     .socials svg { width: 20px; height: 20px; fill: currentColor; }
 
+    .scroll-cue {
+      margin-top: 48px;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--faint);
+      text-decoration: none;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float { 50% { transform: translateY(6px); } }
+
     /* ---------- Tabs ---------- */
     nav {
       position: sticky;
-      top: 0;
+      top: 12px;
       z-index: 10;
-      background: var(--nav-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      padding: 0 16px;
     }
     nav ul {
       list-style: none;
       display: flex;
-      justify-content: center;
       gap: 4px;
-      padding: 10px 0;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(10, 12, 28, .7);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
     nav a {
       display: block;
-      padding: 6px 14px;
+      padding: 8px 18px;
       border-radius: 999px;
       font-size: 0.875rem;
       font-weight: 600;
       color: var(--muted);
       text-decoration: none;
-      transition: background .15s ease, color .15s ease;
+      transition: color .2s ease, background .2s ease, box-shadow .2s ease;
     }
     nav a:hover { color: var(--text); }
     nav a[aria-selected="true"] {
-      background: var(--text);
-      color: var(--bg);
+      color: #0b0b1a;
+      background: linear-gradient(100deg, var(--violet), var(--cyan));
+      box-shadow: 0 0 24px rgba(167, 139, 250, .45);
     }
-    nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    nav a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 
-    /* ---------- Sections ---------- */
-    main { min-height: 60vh; }
-    section { padding: 32px 0 8px; }
+    /* ---------- Panels ---------- */
+    main { min-height: 70vh; }
+    section { padding: 40px 0 8px; animation: fade-in .4s ease; }
     section[hidden] { display: none; }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } }
 
     .section-head {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
     h2 {
-      font-size: 0.75rem;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 0.8125rem;
       font-weight: 600;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--faint);
     }
     .more {
       font-size: 0.875rem;
       font-weight: 600;
-      color: var(--accent);
+      color: var(--cyan);
       text-decoration: none;
     }
     .more:hover { text-decoration: underline; }
 
-    .card {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--card);
-      box-shadow: var(--shadow);
+    .glass {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     /* Projects */
     .projects {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 14px;
     }
-    @media (max-width: 560px) {
+    @media (max-width: 600px) {
       .projects { grid-template-columns: 1fr; }
     }
     .project {
       display: flex;
       flex-direction: column;
-      padding: 18px;
+      padding: 22px;
       text-decoration: none;
-      transition: transform .15s ease, border-color .15s ease;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
     }
     .project:hover,
     .project:focus-visible {
-      transform: translateY(-2px);
-      border-color: var(--accent);
+      transform: translateY(-4px);
+      background: var(--glass-hover);
+      box-shadow: var(--glow);
       outline: none;
     }
+    .project .icon { font-size: 1.5rem; }
     .project h3 {
-      font-size: 1.0625rem;
-      font-weight: 700;
+      margin-top: 10px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
     }
     .project p {
       margin-top: 6px;
@@ -244,84 +309,117 @@
     }
     .tags {
       list-style: none;
-      margin-top: 14px;
+      margin-top: 16px;
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
     }
     .tags li {
-      padding: 2px 8px;
-      border-radius: 6px;
-      background: var(--tag);
+      padding: 3px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
       font-size: 0.75rem;
-      font-weight: 500;
       color: var(--muted);
     }
 
     /* Writing */
     .posts { list-style: none; overflow: hidden; }
-    .posts li + li { border-top: 1px solid var(--border); }
+    .posts li + li { border-top: 1px solid var(--line); }
     .posts a {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       gap: 16px;
-      padding: 14px 18px;
+      padding: 16px 20px;
       text-decoration: none;
-      transition: background .15s ease;
+      transition: background .2s ease;
     }
-    .posts a:hover { background: var(--tag); }
-    .posts .title { font-weight: 600; }
+    .posts a:hover { background: var(--glass-hover); }
+    .posts a:hover .title { color: #fff; }
+    .posts .title { font-weight: 500; color: var(--text); }
     .posts .date {
       flex-shrink: 0;
       font-size: 0.8125rem;
-      color: var(--muted);
+      color: var(--faint);
       font-variant-numeric: tabular-nums;
     }
-    .posts .empty { padding: 14px 18px; color: var(--muted); }
+    .posts .empty { padding: 16px 20px; color: var(--muted); }
 
-    /* Photography: official Instagram embeds of the pinned posts */
-    .ig-posts {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
+    /* Photography */
+    .photos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
     }
-    .ig-posts .instagram-media {
-      width: 100% !important;
-      max-width: 540px !important;
-      min-width: 0 !important;
-      margin: 0 !important;
-      border-radius: 14px !important;
-      border: 1px solid var(--border) !important;
-      box-shadow: var(--shadow) !important;
+    @media (max-width: 600px) {
+      .photos { grid-template-columns: 1fr; }
     }
-    .ig-posts .instagram-media a {
+    .photo {
+      position: relative;
       display: block;
-      padding: 24px;
-      text-align: center;
-      color: var(--accent);
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: linear-gradient(160deg, #1b1640, #0b1a2a);
+      text-decoration: none;
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .photo:hover,
+    .photo:focus-visible {
+      transform: translateY(-4px);
+      box-shadow: 0 0 0 1px rgba(251, 191, 36, .4), 0 12px 40px -10px rgba(251, 191, 36, .45);
+      outline: none;
+    }
+    .photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .6s ease;
+    }
+    .photo:hover img { transform: scale(1.05); }
+    .photo figcaption {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 40px 16px 14px;
+      background: linear-gradient(transparent, rgba(5, 6, 15, .85));
+    }
+    .photo .place {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
       font-weight: 600;
+    }
+    .photo .meta {
+      font-size: 0.8125rem;
+      color: var(--muted);
     }
 
     footer {
-      padding: 48px 0 40px;
+      padding: 64px 0 40px;
       text-align: center;
       font-size: 0.8125rem;
-      color: var(--muted);
+      color: var(--faint);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
 <body>
+  <div class="nebula" aria-hidden="true"></div>
+  <canvas id="stars" aria-hidden="true"></canvas>
+
   <div class="wrap">
     <header>
-      <img class="avatar" src="https://github.com/weirui828.png" alt="Wei Rui" />
-      <h1>Wei Rui</h1>
-      <p class="role">AI/ML Engineer · Photographer</p>
-      <p class="route">📍 San Francisco <span class="arrow">→</span> 🇦🇺 Sydney (2027)</p>
-      <p class="bio">I build AI that dreams,<br />
-        teach machines to grade machines,<br />
-        and hunt golden hour on mountain trails.</p>
+      <div class="avatar-ring"><img src="https://github.com/weirui828.png" alt="Wei Rui" /></div>
+      <p class="wordmark">Weiniverse</p>
+      <h1>Wei Rui <span class="role">— AI/ML Engineer · Photographer</span></h1>
+      <p class="route"><b>San Francisco</b> <span class="orbit">✦ ⟶</span> <b>Sydney</b> 2027</p>
+      <p class="bio">I build <em>AI that dreams</em>,<br />
+        teach <em>machines to grade machines</em>,<br />
+        and hunt <em>golden hour</em> on mountain trails.</p>
 
       <ul class="socials">
         <li>
@@ -345,10 +443,12 @@
           </a>
         </li>
       </ul>
+
+      <a class="scroll-cue" href="#explore">Explore ↓</a>
     </header>
   </div>
 
-  <nav aria-label="Sections">
+  <nav id="explore" aria-label="Sections">
     <ul role="tablist">
       <li role="presentation"><a href="#projects" id="tab-projects" role="tab" aria-controls="projects" aria-selected="true">Projects</a></li>
       <li role="presentation"><a href="#writing" id="tab-writing" role="tab" aria-controls="writing" aria-selected="false" tabindex="-1">Writing</a></li>
@@ -363,53 +463,136 @@
         <a class="more" href="https://github.com/weirui828?tab=repositories" target="_blank" rel="noopener">More on GitHub →</a>
       </div>
       <div class="projects">
-        <a class="card project" href="https://github.com/weirui828/dream-pet" target="_blank" rel="noopener">
-          <h3>🐾 Dream Pet</h3>
+        <a class="glass project" href="https://github.com/weirui828/dream-pet" target="_blank" rel="noopener">
+          <span class="icon" aria-hidden="true">🌙</span>
+          <h3>Dream Pet</h3>
           <p>A self-hosted AI companion that gets bored, explores the web, chats with you, and dreams at night.</p>
           <ul class="tags"><li>Python</li><li>LangGraph</li><li>FastAPI</li><li>Next.js</li></ul>
         </a>
-        <a class="card project" href="https://github.com/weirui828/triagekit" target="_blank" rel="noopener">
-          <h3>🧭 TriageKit</h3>
+        <a class="glass project" href="https://github.com/weirui828/triagekit" target="_blank" rel="noopener">
+          <span class="icon" aria-hidden="true">🧭</span>
+          <h3>TriageKit</h3>
           <p>Human-in-the-loop text triage with reproducible training, tiered routing, and continuous feedback.</p>
           <ul class="tags"><li>Python</li><li>ML</li><li>Human-in-the-loop</li></ul>
         </a>
       </div>
     </section>
 
-    <section id="writing" role="tabpanel" aria-labelledby="tab-writing">
+    <section id="writing" role="tabpanel" aria-labelledby="tab-writing" hidden>
       <div class="section-head">
         <h2>Writing</h2>
         <a class="more" href="https://medium.com/@wei.rui828" target="_blank" rel="noopener">All posts on Medium →</a>
       </div>
-      <ul class="card posts" id="posts">
+      <ul class="glass posts" id="posts">
         <li class="empty">Loading posts…</li>
       </ul>
     </section>
 
-    <section id="photography" role="tabpanel" aria-labelledby="tab-photography">
+    <section id="photography" role="tabpanel" aria-labelledby="tab-photography" hidden>
       <div class="section-head">
         <h2>Photography</h2>
         <a class="more" href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener">Follow on Instagram →</a>
       </div>
-      <div class="ig-posts">
-        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DSyv6jMEUTl/" data-instgrm-version="14">
-          <a href="https://www.instagram.com/p/DSyv6jMEUTl/" target="_blank" rel="noopener">View this photo on Instagram</a>
-        </blockquote>
-        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/C0YJR4trBM1/" data-instgrm-version="14">
-          <a href="https://www.instagram.com/p/C0YJR4trBM1/" target="_blank" rel="noopener">View this photo on Instagram</a>
-        </blockquote>
-        <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/C3egDPhunjG/" data-instgrm-version="14">
-          <a href="https://www.instagram.com/p/C3egDPhunjG/" target="_blank" rel="noopener">View this photo on Instagram</a>
-        </blockquote>
+      <div class="photos">
+        <figure>
+          <a class="photo" href="https://www.instagram.com/p/DSyv6jMEUTl/" target="_blank" rel="noopener">
+            <img src="assets/photos/weiniverse-burney-falls.jpg" alt="Burney Falls pouring over mossy cliffs after days of rain" loading="lazy" onerror="this.remove()" />
+            <figcaption><span class="place">Burney Falls</span><span class="meta">Northern California</span></figcaption>
+          </a>
+        </figure>
+        <figure>
+          <a class="photo" href="https://www.instagram.com/p/C0YJR4trBM1/" target="_blank" rel="noopener">
+            <img src="assets/photos/weiniverse-mission-beach.jpg" alt="Palm trees silhouetted against a sunset, reflected in glass-still water at Mission Beach" loading="lazy" onerror="this.remove()" />
+            <figcaption><span class="place">Mission Beach</span><span class="meta">San Diego</span></figcaption>
+          </a>
+        </figure>
+        <figure>
+          <a class="photo" href="https://www.instagram.com/p/C3egDPhunjG/" target="_blank" rel="noopener">
+            <img src="assets/photos/weiniverse-zhuhai-art-center.jpg" alt="A butterfly-shaped art center reflected in a lake in Zhuhai" loading="lazy" onerror="this.remove()" />
+            <figcaption><span class="place">Zhuhai Art Center</span><span class="meta">Zhuhai, China</span></figcaption>
+          </a>
+        </figure>
       </div>
     </section>
 
-    <footer>© 2026 Wei Rui · weiniverse.com</footer>
+    <footer>© 2026 Wei Rui · made somewhere in the Weiniverse ✦</footer>
   </main>
 
-  <script async src="https://www.instagram.com/embed.js"></script>
   <script>
-    // Latest Medium posts, refreshed daily by .github/workflows/update-posts.yml
+    // ---------- Starfield: slow drift, twinkle, the odd shooting star ----------
+    (() => {
+      const canvas = document.getElementById("stars");
+      const ctx = canvas.getContext("2d");
+      const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let w, h, dpr, stars = [], shooting = null, mx = 0, my = 0;
+
+      function resize() {
+        dpr = Math.min(devicePixelRatio || 1, 2);
+        w = canvas.width = innerWidth * dpr;
+        h = canvas.height = innerHeight * dpr;
+        const count = Math.round((innerWidth * innerHeight) / 4500);
+        stars = Array.from({ length: count }, () => ({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          z: Math.random() * 0.8 + 0.2,          // depth: nearer stars are bigger and move more
+          phase: Math.random() * Math.PI * 2,
+          hue: Math.random() < 0.15 ? (Math.random() < 0.5 ? 265 : 190) : 0,
+        }));
+      }
+
+      function draw(t) {
+        ctx.clearRect(0, 0, w, h);
+        for (const s of stars) {
+          if (!still) {
+            s.y += s.z * 0.06 * dpr;
+            if (s.y > h) s.y = 0;
+          }
+          const twinkle = still ? 1 : 0.6 + 0.4 * Math.sin(t / 900 + s.phase);
+          const px = s.x + mx * s.z * 14 * dpr;
+          const py = s.y + my * s.z * 14 * dpr;
+          ctx.globalAlpha = s.z * twinkle;
+          ctx.fillStyle = s.hue ? `hsl(${s.hue} 90% 80%)` : "#fff";
+          ctx.beginPath();
+          ctx.arc(px, py, s.z * 1.3 * dpr, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        if (!still) {
+          if (!shooting && Math.random() < 0.003) {
+            shooting = { x: Math.random() * w * 0.7, y: Math.random() * h * 0.4, life: 0 };
+          }
+          if (shooting) {
+            const { x, y, life } = shooting;
+            const len = 120 * dpr;
+            const grad = ctx.createLinearGradient(x, y, x - len, y - len * 0.4);
+            grad.addColorStop(0, "rgba(255,255,255,.9)");
+            grad.addColorStop(1, "rgba(255,255,255,0)");
+            ctx.globalAlpha = 1 - life / 40;
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.5 * dpr;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x - len, y - len * 0.4);
+            ctx.stroke();
+            shooting.x += 14 * dpr;
+            shooting.y += 5.6 * dpr;
+            if (++shooting.life > 40) shooting = null;
+          }
+        }
+        ctx.globalAlpha = 1;
+        if (!still) requestAnimationFrame(draw);
+      }
+
+      addEventListener("resize", () => { resize(); if (still) draw(0); });
+      addEventListener("pointermove", e => {
+        mx = e.clientX / innerWidth - 0.5;
+        my = e.clientY / innerHeight - 0.5;
+      });
+      resize();
+      requestAnimationFrame(draw);
+    })();
+
+    // ---------- Latest Medium posts, refreshed daily by .github/workflows/update-posts.yml ----------
     (async () => {
       const list = document.getElementById("posts");
       try {
@@ -438,7 +621,7 @@
       }
     })();
 
-    // Tabs: show one section at a time; the URL hash (#writing etc.) picks the tab
+    // ---------- Tabs: one section at a time; the URL hash (#writing etc.) picks the tab ----------
     const nav = document.querySelector("nav");
     const tabs = [...document.querySelectorAll('[role="tab"]')];
     const panels = tabs.map(t => document.getElementById(t.getAttribute("aria-controls")));
@@ -451,10 +634,10 @@
         panels[i].hidden = !on;
       });
       if (focus) tab.focus();
-      if (tab.id === "tab-photography") window.instgrm?.Embeds.process();
       if (updateHash) history.replaceState(null, "", tab.getAttribute("href"));
       // If the tab bar is stuck to the top, bring the new panel's start into view
-      if (window.scrollY > nav.offsetTop) window.scrollTo({ top: nav.offsetTop });
+      const top = nav.getBoundingClientRect().top + scrollY - 12;
+      if (scrollY > top) scrollTo({ top });
     }
 
     tabs.forEach((tab, i) => {
@@ -472,8 +655,16 @@
 
     const initial = tabs.find(t => t.getAttribute("href") === location.hash) || tabs[0];
     selectTab(initial, { updateHash: false });
-    // Keep the header in view instead of the browser's jump to the #hash target
-    if (location.hash) window.addEventListener("load", () => window.scrollTo(0, 0));
+    // A shared #tab link opens with the tabs in view
+    if (initial !== tabs[0] || location.hash) {
+      addEventListener("load", () => scrollTo({ top: nav.getBoundingClientRect().top + scrollY - 12 }));
+    }
+
+    // Smooth scroll for the "Explore" cue
+    document.querySelector(".scroll-cue").addEventListener("click", e => {
+      e.preventDefault();
+      nav.scrollIntoView({ behavior: "smooth" });
+    });
   </script>
 </body>
 </html>
