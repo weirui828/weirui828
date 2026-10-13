@@ -7,17 +7,9 @@ Building things with AI/ML by day — chasing light and trails the rest of the t
 
 <br />
 
-<a href="https://www.linkedin.com/in/wei-rui">
-  <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" height="40" alt="LinkedIn" />
-</a>
-<br /><br />
-<a href="https://medium.com/@wei.rui828">
-  <img src="https://img.shields.io/badge/Blog-222222?style=for-the-badge&logo=medium&logoColor=white" height="40" alt="Blog" />
-</a>
-<br /><br />
-<a href="https://www.instagram.com/weiniverse_photography">
-  <img src="https://img.shields.io/badge/Photography-E4405F?style=for-the-badge&logo=instagram&logoColor=white" height="40" alt="Photography" />
-</a>
+<a href="https://www.linkedin.com/in/wei-rui"><img src="https://skillicons.dev/icons?i=linkedin" width="36" alt="LinkedIn" /></a>&nbsp;&nbsp;
+<a href="https://medium.com/@wei.rui828"><img src="https://skillicons.dev/icons?i=medium" width="36" alt="Medium" /></a>&nbsp;&nbsp;
+<a href="https://www.instagram.com/weiniverse_photography"><img src="https://skillicons.dev/icons?i=instagram" width="36" alt="Instagram" /></a>
 
 <br /><br />
 
