@@ -1,16 +1,38 @@
-## Hi there 👋
+<div align="center">
 
-<!--
-**weirui828/weirui828** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+<img src="https://github.com/weirui828.png" width="120" style="border-radius: 50%;" alt="Wei Rui" />
 
-Here are some ideas to get you started:
+# Wei Rui
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+**AI / ML Engineer** · 📍 San Francisco → 🇦🇺 Sydney (2027)
+
+Building things with AI/ML by day — chasing light and trails the rest of the time.
+📷 Photography · 🥾 Hiking
+
+<br />
+
+<a href="https://www.linkedin.com/in/YOUR_LINKEDIN">
+  <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" height="40" alt="LinkedIn" />
+</a>
+<br /><br />
+<a href="https://YOUR_BLOG_URL">
+  <img src="https://img.shields.io/badge/Blog-222222?style=for-the-badge&logo=hashnode&logoColor=white" height="40" alt="Blog" />
+</a>
+<br /><br />
+<a href="https://www.instagram.com/YOUR_INSTAGRAM">
+  <img src="https://img.shields.io/badge/Photography-E4405F?style=for-the-badge&logo=instagram&logoColor=white" height="40" alt="Photography" />
+</a>
+<br /><br />
+<a href="https://www.strava.com/athletes/YOUR_STRAVA">
+  <img src="https://img.shields.io/badge/Hiking-FC4C02?style=for-the-badge&logo=strava&logoColor=white" height="40" alt="Hiking" />
+</a>
+<br /><br />
+<a href="mailto:YOUR_EMAIL">
+  <img src="https://img.shields.io/badge/Email_Me-555555?style=for-the-badge&logo=gmail&logoColor=white" height="40" alt="Email" />
+</a>
+
+<br /><br />
+
+<sub>Open to connecting with folks in Sydney's tech scene 👋</sub>
+
+</div>
