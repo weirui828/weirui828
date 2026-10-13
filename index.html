@@ -622,7 +622,7 @@
       </div>
       <p class="journey-sub">From Suiping to Sydney: every place I've called home.</p>
       <div class="globe-wrap">
-        <canvas id="globe" role="img" aria-label="A globe tracing my moves: Suiping, Zhuhai, Guangzhou, Fairfield, New York City, Boston, San Diego, San Francisco, and next, Sydney."></canvas>
+        <canvas id="globe" role="img" aria-label="A globe tracing my moves: Suiping, Zhuhai, Guangzhou, Fairfield, New York City, Stamford, Boston, San Diego, San Francisco, and next, Sydney."></canvas>
         <div class="globe-status" id="globe-status">Loading the globe…</div>
       </div>
       <ol class="stops" id="stops"></ol>
@@ -742,13 +742,14 @@
         { name: "Guangzhou", region: "Guangdong, China", coord: [113.26, 23.13] },
         { name: "Fairfield", region: "Iowa, USA", coord: [-91.96, 41.01] },
         { name: "New York City", region: "New York, USA", coord: [-74.01, 40.71] },
+        { name: "Stamford", region: "Connecticut, USA", coord: [-73.54, 41.05] },
         { name: "Boston", region: "Massachusetts, USA", coord: [-71.06, 42.36] },
         { name: "San Diego", region: "California, USA", coord: [-117.16, 32.72] },
         { name: "San Francisco", region: "California, USA", coord: [-122.42, 37.77], tag: "Now" },
         { name: "Sydney", region: "Australia", coord: [151.21, -33.87], tag: "Next" },
       ];
       const LEGS = CITIES.length - 1;
-      const NOW = 7;                      // index of the current city; the leg after it is the future move
+      const NOW = 8;                      // index of the current city; the leg after it is the future move
       const LIBS = [
         "https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js",
         "https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js",
@@ -849,7 +850,7 @@
         const a = CITIES[i].coord, b = CITIES[i + 1].coord;
         const mid = d3.geoInterpolate(a, b)(0.5);
         const d = d3.geoDistance(a, b);
-        const zoom = Math.max(1, Math.min(6, 1.1 / (d + 0.12)));
+        const zoom = Math.max(1, Math.min(9, 1.1 / (d + 0.12)));
         return { rot: [-mid[0], -mid[1] * 0.8], zoom, d };
       }
 
@@ -978,8 +979,8 @@
         // City markers and labels
         const reached = mode === "story" ? leg + (phase === "arrive" ? 1 : 0) : LEGS;
         const placed = [];
-        // A clicked city, then "Now" and "Next", go first so their labels win any collision
-        const first = mode === "focus" && focused >= 0 ? [focused] : [];
+        // The clicked (or most recently reached) city, then "Now" and "Next", label first so they win collisions
+        const first = mode === "focus" && focused >= 0 ? [focused] : mode === "story" ? [reached] : [];
         const order = [...first, NOW, NOW + 1, ...CITIES.keys()].filter((v, k, a) => a.indexOf(v) === k);
         order.forEach(i => {
           const c = CITIES[i];
@@ -1004,22 +1005,24 @@
           ctx.beginPath(); ctx.arc(x, y, i === focused && mode === "focus" ? 5 : 3.5, 0, Math.PI * 2); ctx.fill();
           ctx.shadowBlur = 0;
 
-          // Label unless it would collide with one already drawn
-          if (placed.some(([px, py]) => Math.abs(px - x) < 70 && Math.abs(py - y) < 16)) return;
-          placed.push([x, y]);
+          // Label to the right of the dot, else to the left, else skip if both would overlap another label
           ctx.font = '600 12px "Space Grotesk", sans-serif';
           ctx.textBaseline = "middle";
-          const label = c.name;
-          const right = x < size - 110;
-          ctx.textAlign = right ? "left" : "right";
+          const w = ctx.measureText(c.name).width + 16;
+          const boxes = [{ x0: x + 6, side: "right" }, { x0: x - 6 - w, side: "left" }]
+            .map(b => ({ ...b, x1: b.x0 + w, y0: y - 10, y1: y + 10 }))
+            .filter(b => b.x0 > 0 && b.x1 < size);
+          const hit = b => placed.some(p => b.x0 < p.x1 && b.x1 > p.x0 && b.y0 < p.y1 && b.y1 > p.y0);
+          const box = boxes.find(b => !hit(b));
+          if (!box) return;
+          placed.push(box);
           ctx.fillStyle = "rgba(5, 6, 15, .75)";
-          const w = ctx.measureText(label).width;
-          const bx = right ? x + 9 : x - 9 - w - 8;
           ctx.beginPath();
-          ctx.roundRect?.(bx - 4, y - 10, w + 16, 20, 10);
+          ctx.roundRect?.(box.x0, box.y0, w, 20, 10);
           ctx.fill();
           ctx.fillStyle = color;
-          ctx.fillText(label, right ? x + 12 : x - 12, y);
+          ctx.textAlign = "left";
+          ctx.fillText(c.name, box.x0 + 8, y);
         });
       }
 
