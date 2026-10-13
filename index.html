@@ -228,6 +228,9 @@
       transition: color .2s ease, background .2s ease, box-shadow .2s ease;
     }
     nav a:hover { color: var(--text); }
+    @media (max-width: 440px) {
+      nav a { padding: 7px 11px; font-size: 0.8125rem; }
+    }
     nav a[aria-selected="true"] {
       color: #0b0b1a;
       background: linear-gradient(100deg, var(--violet), var(--cyan));
@@ -402,6 +405,95 @@
       color: var(--muted);
     }
 
+    /* Journey: animated globe of the cities I've lived in */
+    .globe-wrap {
+      position: relative;
+      width: min(100%, 560px);
+      margin: 0 auto;
+      aspect-ratio: 1;
+    }
+    #globe {
+      width: 100%;
+      height: 100%;
+      display: block;
+      /* Round viewport: zoomed-in views fade out at the circle instead of showing square edges */
+      -webkit-mask-image: radial-gradient(closest-side, #000 90%, transparent 100%);
+      mask-image: radial-gradient(closest-side, #000 90%, transparent 100%);
+      cursor: grab;
+      touch-action: pan-y;
+    }
+    #globe:active { cursor: grabbing; }
+    .globe-status {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: var(--faint);
+      font-size: 0.875rem;
+      pointer-events: none;
+    }
+    .journey-sub {
+      margin: -6px 0 8px;
+      color: var(--muted);
+      font-size: 0.9375rem;
+    }
+    .replay {
+      font: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--cyan);
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+    .replay:hover { text-decoration: underline; }
+    .stops {
+      list-style: none;
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      counter-reset: stop;
+    }
+    .stops button {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--glass);
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: color .2s ease, border-color .2s ease, box-shadow .2s ease, opacity .3s ease;
+    }
+    .stops button::before {
+      counter-increment: stop;
+      content: counter(stop);
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 600;
+      color: var(--faint);
+    }
+    .stops button:hover,
+    .stops button:focus-visible { color: var(--text); border-color: rgba(167, 139, 250, .5); outline: none; }
+    .stops button.reached { color: var(--text); }
+    .stops button.active { color: var(--text); box-shadow: var(--glow); }
+    .stops .tag {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+    .stops .next .tag { color: var(--gold); }
+    .stops .region { color: var(--faint); }
+    @media (max-width: 600px) {
+      .stops .region { display: none; }
+    }
+
     footer {
       padding: 64px 0 40px;
       text-align: center;
@@ -460,6 +552,7 @@
       <li role="presentation"><a href="#projects" id="tab-projects" role="tab" aria-controls="projects" aria-selected="true">Projects</a></li>
       <li role="presentation"><a href="#writing" id="tab-writing" role="tab" aria-controls="writing" aria-selected="false" tabindex="-1">Writing</a></li>
       <li role="presentation"><a href="#photography" id="tab-photography" role="tab" aria-controls="photography" aria-selected="false" tabindex="-1">Photography</a></li>
+      <li role="presentation"><a href="#journey" id="tab-journey" role="tab" aria-controls="journey" aria-selected="false" tabindex="-1">Journey</a></li>
     </ul>
   </nav>
 
@@ -520,6 +613,19 @@
           </a>
         </figure>
       </div>
+    </section>
+
+    <section id="journey" role="tabpanel" aria-labelledby="tab-journey" hidden>
+      <div class="section-head">
+        <h2>Journey</h2>
+        <button class="replay" type="button" id="replay">Replay ↺</button>
+      </div>
+      <p class="journey-sub">From Suiping to Sydney: every place I've called home.</p>
+      <div class="globe-wrap">
+        <canvas id="globe" role="img" aria-label="A globe tracing my moves: Suiping, Zhuhai, Guangzhou, Fairfield, New York City, Boston, San Diego, San Francisco, and next, Sydney."></canvas>
+        <div class="globe-status" id="globe-status">Loading the globe…</div>
+      </div>
+      <ol class="stops" id="stops"></ol>
     </section>
 
     <footer>© 2026 Wei Rui · made somewhere in the Weiniverse ✦</footer>
@@ -628,8 +734,372 @@
       }
     })();
 
+    // ---------- Journey: a globe that flies through every city I've lived in ----------
+    const journey = (() => {
+      const CITIES = [
+        { name: "Suiping", region: "Henan, China", coord: [114.01, 33.15], tag: "Home" },
+        { name: "Zhuhai", region: "Guangdong, China", coord: [113.58, 22.27] },
+        { name: "Guangzhou", region: "Guangdong, China", coord: [113.26, 23.13] },
+        { name: "Fairfield", region: "Iowa, USA", coord: [-91.96, 41.01] },
+        { name: "New York City", region: "New York, USA", coord: [-74.01, 40.71] },
+        { name: "Boston", region: "Massachusetts, USA", coord: [-71.06, 42.36] },
+        { name: "San Diego", region: "California, USA", coord: [-117.16, 32.72] },
+        { name: "San Francisco", region: "California, USA", coord: [-122.42, 37.77], tag: "Now" },
+        { name: "Sydney", region: "Australia", coord: [151.21, -33.87], tag: "Next" },
+      ];
+      const LEGS = CITIES.length - 1;
+      const NOW = 7;                      // index of the current city; the leg after it is the future move
+      const LIBS = [
+        "https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js",
+        "https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js",
+      ];
+      const ATLAS = "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json";
+      const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const canvas = document.getElementById("globe");
+      const ctx = canvas.getContext("2d");
+      const status = document.getElementById("globe-status");
+      const stopsEl = document.getElementById("stops");
+
+      let ready = null, visible = false, raf = 0, last = 0;
+      let projection, path, dots = [], size = 0, radius = 0;
+      // Camera: rotation [λ, φ] and zoom (1 = whole globe fits)
+      let cam = { rot: [-CITIES[0].coord[0], -CITIES[0].coord[1]], zoom: 3 };
+      let tween = null;                   // { from, to, start, dur }
+      // Story state: which leg is playing and in which phase
+      let leg = 0, phase = "fly", phaseStart = 0, progress = 0;
+      let mode = still ? "done" : "story"; // "story" | "done" | "focus"
+      let dragging = null;
+
+      // Legend chips double as the accessible list of places
+      const chips = CITIES.map((c, i) => {
+        const li = document.createElement("li");
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = i === NOW + 1 ? "next" : "";
+        b.innerHTML = `<span>${c.name}<span class="region"> · ${c.region}</span></span>`;
+        if (c.tag) b.insertAdjacentHTML("beforeend", `<span class="tag">${c.tag}</span>`);
+        b.addEventListener("click", () => focusCity(i));
+        li.append(b);
+        stopsEl.append(li);
+        return b;
+      });
+
+      const loadScript = src => new Promise((resolve, reject) => {
+        const el = document.createElement("script");
+        el.src = src;
+        el.onload = resolve;
+        el.onerror = reject;
+        document.head.append(el);
+      });
+
+      async function init() {
+        for (const src of LIBS) await loadScript(src);
+        const world = await (await fetch(ATLAS)).json();
+        const land = topojson.feature(world, world.objects.land);
+
+        // Rasterise land once onto a small equirectangular canvas, then sample it into a dot grid
+        const W = 720, H = 360;
+        const off = document.createElement("canvas");
+        off.width = W; off.height = H;
+        const octx = off.getContext("2d", { willReadFrequently: true });
+        const eq = d3.geoEquirectangular().scale(W / (2 * Math.PI)).translate([W / 2, H / 2]);
+        octx.fillStyle = "#000";
+        octx.beginPath();
+        d3.geoPath(eq, octx)(land);
+        octx.fill();
+        const px = octx.getImageData(0, 0, W, H).data;
+        for (let lat = -58; lat <= 80; lat += 1.6) {
+          const step = 1.6 / Math.cos(lat * Math.PI / 180);
+          for (let lon = -180; lon < 180; lon += step) {
+            const [x, y] = eq([lon, lat]);
+            if (px[(Math.floor(y) * W + Math.floor(x)) * 4 + 3] > 128) dots.push([lon, lat]);
+          }
+        }
+
+        projection = d3.geoOrthographic().clipAngle(90).precision(0.3);
+        path = d3.geoPath(projection, ctx);
+        new ResizeObserver(resize).observe(canvas);
+        resize();
+        bindDrag();
+        status.remove();
+        restart();
+      }
+
+      function resize() {
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        size = canvas.clientWidth;
+        if (!size) return;
+        canvas.width = canvas.height = Math.round(size * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        radius = size * 0.42;
+        projection.translate([size / 2, size / 2]);
+        kick();
+      }
+
+      // ----- camera helpers -----
+      const wrap = a => ((a + 540) % 360) - 180;
+      const ease = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+      function flyTo(rot, zoom, dur, now) {
+        const to = { rot: [cam.rot[0] + wrap(rot[0] - cam.rot[0]), rot[1]], zoom };
+        tween = { from: { rot: [...cam.rot], zoom: cam.zoom }, to, start: now, dur };
+      }
+      function legView(i) {
+        const a = CITIES[i].coord, b = CITIES[i + 1].coord;
+        const mid = d3.geoInterpolate(a, b)(0.5);
+        const d = d3.geoDistance(a, b);
+        const zoom = Math.max(1, Math.min(6, 1.1 / (d + 0.12)));
+        return { rot: [-mid[0], -mid[1] * 0.8], zoom, d };
+      }
+
+      // ----- story -----
+      function restart() {
+        chips.forEach(c => c.classList.remove("reached", "active"));
+        if (still) { mode = "done"; showDone(performance.now(), 0); return; }
+        mode = "story";
+        leg = 0;
+        startPhase("fly", performance.now());
+        chips[0].classList.add("reached", "active");
+        kick();
+      }
+      function startPhase(p, now) {
+        phase = p;
+        phaseStart = now;
+        if (p === "fly") {
+          const v = legView(leg);
+          flyTo(v.rot, v.zoom, 1100, now);
+        }
+      }
+      function showDone(now, dur) {
+        chips.forEach(c => c.classList.add("reached"));
+        chips.forEach(c => c.classList.remove("active"));
+        chips[NOW].classList.add("active");
+        flyTo([-175, -5], 1, dur, now);
+        if (!dur) { cam = { ...tween.to }; tween = null; }
+        kick();
+      }
+      function focusCity(i) {
+        const now = performance.now();
+        mode = "focus";
+        chips.forEach((c, j) => { c.classList.add("reached"); c.classList.toggle("active", j === i); });
+        flyTo([-CITIES[i].coord[0], -CITIES[i].coord[1]], 3.2, still ? 0 : 900, now);
+        if (still) { cam = { ...tween.to }; tween = null; }
+        focused = i;
+        kick();
+      }
+      let focused = -1;
+
+      function step(now) {
+        if (tween) {
+          const t = tween.dur ? Math.min(1, (now - tween.start) / tween.dur) : 1;
+          const k = ease(t);
+          cam = {
+            rot: [0, 1].map(j => tween.from.rot[j] + (tween.to.rot[j] - tween.from.rot[j]) * k),
+            // interpolate zoom in log space so zooming feels even
+            zoom: Math.exp(Math.log(tween.from.zoom) + (Math.log(tween.to.zoom) - Math.log(tween.from.zoom)) * k),
+          };
+          if (t === 1) tween = null;
+        }
+        if (mode !== "story") {
+          // Gentle idle spin once the story is over (not while a city is focused or being dragged)
+          if (mode === "done" && !tween && !dragging && !still) cam.rot[0] += (now - last) * 0.004;
+          return;
+        }
+        const elapsed = now - phaseStart;
+        if (phase === "fly" && !tween) startPhase("draw", now);
+        else if (phase === "draw") {
+          const dur = 700 + 1100 * Math.min(1, legView(leg).d / 1.6);
+          progress = Math.min(1, elapsed / dur);
+          if (progress === 1) {
+            startPhase("arrive", now);
+            chips.forEach(c => c.classList.remove("active"));
+            chips[leg + 1].classList.add("reached", "active");
+          }
+        } else if (phase === "arrive" && elapsed > 650) {
+          leg++;
+          if (leg < LEGS) startPhase("fly", now);
+          else { mode = "done"; showDone(now, 1600); }
+        }
+      }
+
+      // ----- drawing -----
+      function arcPoints(i, upTo = 1) {
+        const interp = d3.geoInterpolate(CITIES[i].coord, CITIES[i + 1].coord);
+        const n = Math.max(8, Math.ceil(64 * upTo));
+        return d3.range(n + 1).map(k => interp((k / n) * upTo));
+      }
+
+      function draw(now) {
+        projection.rotate(cam.rot).scale(radius * cam.zoom);
+        const center = [-cam.rot[0], -cam.rot[1]];
+        ctx.clearRect(0, 0, size, size);
+
+        // Atmosphere glow and the dark ocean sphere
+        const [cx, cy] = projection.translate();
+        const r = radius * cam.zoom;
+        const halo = ctx.createRadialGradient(cx, cy, r * 0.9, cx, cy, r * 1.12);
+        halo.addColorStop(0, "rgba(124, 58, 237, .35)");
+        halo.addColorStop(1, "rgba(124, 58, 237, 0)");
+        ctx.fillStyle = halo;
+        ctx.beginPath(); ctx.arc(cx, cy, r * 1.12, 0, Math.PI * 2); ctx.fill();
+        const ocean = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.35, r * 0.1, cx, cy, r);
+        ocean.addColorStop(0, "#141a3d");
+        ocean.addColorStop(1, "#070a1c");
+        ctx.fillStyle = ocean;
+        ctx.beginPath(); path({ type: "Sphere" }); ctx.fill();
+        ctx.strokeStyle = "rgba(167, 139, 250, .25)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Land as dots, dimmer towards the limb for depth
+        const dotR = Math.max(0.9, Math.min(2.2, 0.0045 * r));
+        for (const dpt of dots) {
+          const dist = d3.geoDistance(dpt, center);
+          if (dist > Math.PI / 2) continue;
+          const [x, y] = projection(dpt);
+          if (x < -4 || y < -4 || x > size + 4 || y > size + 4) continue;
+          ctx.globalAlpha = 0.25 + 0.6 * Math.cos(dist);
+          ctx.fillStyle = "#9aa6ff";
+          ctx.fillRect(x - dotR / 2, y - dotR / 2, dotR, dotR);
+        }
+        ctx.globalAlpha = 1;
+
+        // Arcs: done legs in full, the current leg growing
+        const legsDone = mode === "story" ? leg + (phase === "arrive" ? 1 : 0) : LEGS;
+        for (let i = 0; i < LEGS; i++) {
+          let upTo = 0;
+          if (i < legsDone) upTo = 1;
+          else if (mode === "story" && i === leg && phase === "draw") upTo = progress;
+          if (!upTo) continue;
+          drawArc(i, upTo);
+        }
+
+        // City markers and labels
+        const reached = mode === "story" ? leg + (phase === "arrive" ? 1 : 0) : LEGS;
+        const placed = [];
+        // A clicked city, then "Now" and "Next", go first so their labels win any collision
+        const first = mode === "focus" && focused >= 0 ? [focused] : [];
+        const order = [...first, NOW, NOW + 1, ...CITIES.keys()].filter((v, k, a) => a.indexOf(v) === k);
+        order.forEach(i => {
+          const c = CITIES[i];
+          if (i > reached) return;
+          if (d3.geoDistance(c.coord, center) > Math.PI / 2 - 0.02) return;
+          const [x, y] = projection(c.coord);
+          const isNext = i === NOW + 1, isNow = i === NOW;
+          const color = isNext ? "#fbbf24" : isNow ? "#22d3ee" : "#e8ebff";
+          // pulse on arrival, and forever on "now" / "next"
+          const arriving = mode === "story" && phase === "arrive" && i === leg + 1;
+          if (arriving || ((isNow || isNext) && !still)) {
+            const t = arriving ? (now - phaseStart) / 650 : ((now / 1600) % 1);
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = 1 - t;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(x, y, 4 + t * 16, 0, Math.PI * 2); ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+          ctx.fillStyle = color;
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 10;
+          ctx.beginPath(); ctx.arc(x, y, i === focused && mode === "focus" ? 5 : 3.5, 0, Math.PI * 2); ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Label unless it would collide with one already drawn
+          if (placed.some(([px, py]) => Math.abs(px - x) < 70 && Math.abs(py - y) < 16)) return;
+          placed.push([x, y]);
+          ctx.font = '600 12px "Space Grotesk", sans-serif';
+          ctx.textBaseline = "middle";
+          const label = c.name;
+          const right = x < size - 110;
+          ctx.textAlign = right ? "left" : "right";
+          ctx.fillStyle = "rgba(5, 6, 15, .75)";
+          const w = ctx.measureText(label).width;
+          const bx = right ? x + 9 : x - 9 - w - 8;
+          ctx.beginPath();
+          ctx.roundRect?.(bx - 4, y - 10, w + 16, 20, 10);
+          ctx.fill();
+          ctx.fillStyle = color;
+          ctx.fillText(label, right ? x + 12 : x - 12, y);
+        });
+      }
+
+      function drawArc(i, upTo) {
+        const future = i >= NOW;
+        const line = { type: "LineString", coordinates: arcPoints(i, upTo) };
+        ctx.save();
+        ctx.beginPath();
+        path(line);
+        ctx.lineCap = "round";
+        if (future) {
+          ctx.setLineDash([6, 6]);
+          ctx.lineDashOffset = still ? 0 : -performance.now() / 60;
+          ctx.strokeStyle = "#fbbf24";
+          ctx.shadowColor = "rgba(251, 191, 36, .8)";
+        } else {
+          const [x0, y0] = projection(CITIES[i].coord);
+          const [x1, y1] = projection(CITIES[i + 1].coord);
+          const g = ctx.createLinearGradient(x0, y0, x1, y1);
+          g.addColorStop(0, "#a78bfa");
+          g.addColorStop(1, "#22d3ee");
+          ctx.strokeStyle = g;
+          ctx.shadowColor = "rgba(167, 139, 250, .9)";
+        }
+        ctx.shadowBlur = 12;
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // ----- drag to spin -----
+      function bindDrag() {
+        canvas.addEventListener("pointerdown", e => {
+          if (e.pointerType === "touch") return;      // let touch scroll the page
+          dragging = { x: e.clientX, y: e.clientY, rot: [...cam.rot] };
+          tween = null;
+          if (mode === "story") { mode = "done"; showDone(performance.now(), 0); cam.rot = [...dragging.rot]; cam.zoom = Math.min(cam.zoom, 2); tween = null; }
+          canvas.setPointerCapture(e.pointerId);
+        });
+        canvas.addEventListener("pointermove", e => {
+          if (!dragging) return;
+          const k = 0.25 / cam.zoom;
+          cam.rot = [dragging.rot[0] + (e.clientX - dragging.x) * k, Math.max(-80, Math.min(80, dragging.rot[1] - (e.clientY - dragging.y) * k))];
+          kick();
+        });
+        const end = () => { dragging = null; };
+        canvas.addEventListener("pointerup", end);
+        canvas.addEventListener("pointercancel", end);
+      }
+
+      // ----- loop -----
+      function frame(now) {
+        raf = 0;
+        if (!visible || !projection) return;
+        step(now);
+        draw(now);
+        last = now;
+        if (!still || tween || dragging) raf = requestAnimationFrame(frame);
+      }
+      function kick() {
+        if (!raf && visible && projection) { last = performance.now(); raf = requestAnimationFrame(frame); }
+      }
+
+      document.getElementById("replay").addEventListener("click", () => { focused = -1; if (projection) restart(); });
+
+      return {
+        setVisible(on) {
+          visible = on;
+          if (!on) return;
+          ready ||= init().catch(() => { status.textContent = "Couldn't load the globe."; });
+          kick();
+        },
+      };
+    })();
+
     // ---------- Tabs: one section at a time; the URL hash (#writing etc.) picks the tab ----------
     const nav = document.querySelector("nav");
+    const hero = document.querySelector("header");
+    // Scroll position at which the tab bar reaches its sticky spot (measured from the hero, which never moves)
+    const tabsTop = () => hero.getBoundingClientRect().bottom + scrollY - 12;
     const tabs = [...document.querySelectorAll('[role="tab"]')];
     const panels = tabs.map(t => document.getElementById(t.getAttribute("aria-controls")));
 
@@ -641,9 +1111,10 @@
         panels[i].hidden = !on;
       });
       if (focus) tab.focus();
+      journey.setVisible(tab.id === "tab-journey");
       if (updateHash) history.replaceState(null, "", tab.getAttribute("href"));
       // If the tab bar is stuck to the top, bring the new panel's start into view
-      const top = nav.getBoundingClientRect().top + scrollY - 12;
+      const top = tabsTop();
       if (scrollY > top) scrollTo({ top });
     }
 
@@ -664,7 +1135,7 @@
     selectTab(initial, { updateHash: false });
     // A shared #tab link opens with the tabs in view
     if (initial !== tabs[0] || location.hash) {
-      addEventListener("load", () => scrollTo({ top: nav.getBoundingClientRect().top + scrollY - 12 }));
+      addEventListener("load", () => scrollTo({ top: tabsTop() }));
     }
 
     // Smooth scroll for the "Explore" cue
