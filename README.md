@@ -11,7 +11,7 @@ Building things with AI/ML by day — chasing light and trails the rest of the t
 
 <br />
 
-<a href="https://www.linkedin.com/in/YOUR_LINKEDIN">
+<a href="https://www.linkedin.com/in/wei-rui">
   <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" height="40" alt="LinkedIn" />
 </a>
 <br /><br />
