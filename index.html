@@ -748,8 +748,21 @@
       height: 100%;
       object-fit: cover;
       display: block;
-      transition: transform .6s ease;
+      opacity: 0;
+      transition: transform .6s ease, opacity .6s ease;
     }
+    /* Until its photo arrives, a card shimmers softly instead of sitting there as a dark box */
+    .photo.is-loaded img { opacity: 1; }
+    .photo::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .06) 50%, transparent 70%) 0 0 / 250% 100%;
+      animation: shimmer 1.6s linear infinite;
+      transition: opacity .6s ease;
+    }
+    .photo.is-loaded::before { opacity: 0; animation: none; }
+    @keyframes shimmer { from { background-position: 125% 0; } to { background-position: -125% 0; } }
     .photo:hover img { transform: scale(1.05); }
     .photo figcaption {
       position: absolute;
@@ -2193,6 +2206,19 @@
     if (initial !== tabs[0] || location.hash) {
       addEventListener("load", () => scrollTo({ top: tabsTop() }));
     }
+
+    // Photos: fade each one in once it has loaded, and once the page itself is done, fetch the
+    // Capturing photos in the background so they're usually ready before that tab is opened
+    const photos = [...document.querySelectorAll(".photo img")];
+    photos.forEach(img => {
+      const done = () => img.closest(".photo")?.classList.add("is-loaded");
+      if (img.complete && img.naturalWidth) done();
+      else img.addEventListener("load", done, { once: true });
+    });
+    addEventListener("load", () => {
+      const warm = () => photos.forEach(img => { img.loading = "eager"; });
+      "requestIdleCallback" in window ? requestIdleCallback(warm, { timeout: 2000 }) : setTimeout(warm, 500);
+    });
 
     // Pulling the dream's bookmark makes a soft paper swish (synthesised, so there's no file to load):
     // a band of noise sweeping up as it opens and down as it tucks away
