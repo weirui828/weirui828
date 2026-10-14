@@ -269,17 +269,10 @@
 
     .section-head {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: baseline;
+      gap: 16px;
       margin-bottom: 18px;
-    }
-    h2 {
-      font-family: "Space Grotesk", sans-serif;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--faint);
     }
     .more {
       font-size: 0.875rem;
@@ -453,7 +446,7 @@
       pointer-events: none;
     }
     .journey-sub {
-      margin: -6px 0 8px;
+      margin-right: auto;
       color: var(--muted);
       font-size: 0.9375rem;
     }
@@ -581,7 +574,6 @@
       <main>
     <section id="projects" role="tabpanel" aria-labelledby="tab-projects">
       <div class="section-head">
-        <h2>Projects</h2>
         <a class="more" href="https://github.com/weirui828?tab=repositories" target="_blank" rel="noopener">More on GitHub →</a>
       </div>
       <div class="projects">
@@ -602,7 +594,6 @@
 
     <section id="writing" role="tabpanel" aria-labelledby="tab-writing" hidden>
       <div class="section-head">
-        <h2>Writing</h2>
         <a class="more" href="https://medium.com/@wei.rui828" target="_blank" rel="noopener">All posts on Medium →</a>
       </div>
       <ul class="glass posts" id="posts">
@@ -612,7 +603,6 @@
 
     <section id="photography" role="tabpanel" aria-labelledby="tab-photography" hidden>
       <div class="section-head">
-        <h2>Photography</h2>
         <a class="more" href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener">Follow on Instagram →</a>
       </div>
       <div class="photos">
@@ -639,10 +629,9 @@
 
     <section id="journey" role="tabpanel" aria-labelledby="tab-journey" hidden>
       <div class="section-head">
-        <h2>Journey</h2>
+        <p class="journey-sub">The places I've called home</p>
         <button class="replay" type="button" id="replay">Replay ↺</button>
       </div>
-      <p class="journey-sub">The places I've called home</p>
       <div class="globe-wrap">
         <canvas id="globe" role="img" aria-label="A globe tracing my moves: Suiping, Zhuhai, Guangzhou, Fairfield, New York City, Stamford, Boston, San Diego, San Francisco, and next, Sydney."></canvas>
         <div class="globe-status" id="globe-status">Loading the globe…</div>
