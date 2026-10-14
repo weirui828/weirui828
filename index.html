@@ -2179,7 +2179,7 @@
     }
 
     // Pulling the dream's bookmark makes a soft paper swish (synthesised, so there's no file to load):
-    // a band of noise sweeping up as it opens and down as it tucks away, plus a faint pluck
+    // a band of noise sweeping up as it opens and down as it tucks away
     let audio;
     const swish = opening => {
       try {
@@ -2201,16 +2201,6 @@
         hiss.gain.exponentialRampToValueAtTime(0.0001, t + len);
         src.connect(band).connect(hiss).connect(audio.destination);
         src.start(t);
-        const tone = audio.createOscillator();
-        tone.type = "triangle";
-        tone.frequency.setValueAtTime(opening ? 880 : 660, t + 0.12);
-        const pluck = audio.createGain();
-        pluck.gain.setValueAtTime(0.0001, t + 0.12);
-        pluck.gain.exponentialRampToValueAtTime(0.05, t + 0.13);
-        pluck.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-        tone.connect(pluck).connect(audio.destination);
-        tone.start(t + 0.12);
-        tone.stop(t + 0.5);
       } catch {}
     };
     document.querySelectorAll(".dp-more summary").forEach(s =>
