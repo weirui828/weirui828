@@ -595,20 +595,9 @@
       color: var(--muted);
       font-size: 0.9375rem;
     }
-    .replay {
-      font: inherit;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--cyan);
-      background: none;
-      border: 0;
-      cursor: pointer;
-    }
-    .replay:hover { text-decoration: underline; }
-    /* Narrow screens: switch and Replay on one row, the caption on its own line below */
+    /* Narrow screens: the caption gets its own line below the switch */
     @media (max-width: 600px) {
-      .replay { margin-left: auto; }
-      .journey-sub { order: 3; flex-basis: 100%; margin: 4px 0 0; padding: 0; border: 0; }
+      .journey-sub { flex-basis: 100%; margin: 4px 0 0; padding: 0; border: 0; }
     }
     .map-legend {
       list-style: none;
@@ -637,7 +626,16 @@
       flex-direction: column;
       gap: 6px;
     }
-    .map-zoom button {
+    /* Replay (globe) sits in the same corner, in the same style, as the zoom buttons (map) */
+    .replay {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      display: grid;
+      place-items: center;
+    }
+    .replay[hidden] { display: none; }
+    .map-zoom button, .replay {
       width: 32px;
       height: 32px;
       border: 1px solid var(--line);
@@ -649,7 +647,7 @@
       font: 600 16px/1 "Inter", sans-serif;
       cursor: pointer;
     }
-    .map-zoom button:hover { box-shadow: var(--glow); }
+    .map-zoom button:hover, .replay:hover { box-shadow: var(--glow); }
     .map-hint {
       position: absolute;
       inset: 0;
@@ -800,12 +798,12 @@
           <button type="button" data-view="visited" aria-pressed="false"><span class="half"></span><span class="lbl">Visited</span></button>
         </div>
         <p class="journey-sub" id="journey-sub">The places I've called home</p>
-        <button class="replay" type="button" id="replay">Replay ↺</button>
       </div>
       <div class="globe-wrap">
         <canvas id="globe" role="img" aria-label="A globe tracing my moves: Suiping, Zhuhai, Guangzhou, Fairfield, New York City, Stamford, Boston, San Diego, San Francisco, and next, Sydney."></canvas>
         <div class="globe-status" id="globe-status">Loading the globe…</div>
         <div class="map-hint" id="map-hint" aria-hidden="true"><span></span></div>
+        <button class="replay" type="button" id="replay" aria-label="Replay the journey" title="Replay the journey"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
         <div class="map-zoom" id="map-zoom" hidden>
           <button type="button" data-zoom="in" aria-label="Zoom in">+</button>
           <button type="button" data-zoom="out" aria-label="Zoom out">−</button>
