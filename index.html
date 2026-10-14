@@ -436,6 +436,264 @@
       color: var(--muted);
     }
 
+    /* Building: a deep dive on Dream Pet */
+    .dp { display: flex; flex-direction: column; gap: 14px; }
+    .dp-hero {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 28px;
+      box-shadow: var(--glow);
+    }
+    /* The pet, drawn like the app's avatar: a pink orb that floats and blinks */
+    .dp-pet {
+      position: relative;
+      flex-shrink: 0;
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 34% 28%, #fbcfe8, #ec4899 52%, #9d174d);
+      box-shadow: 0 0 36px -4px rgba(236, 72, 153, .6);
+      animation: float 4.5s ease-in-out infinite;
+    }
+    .dp-pet::before,
+    .dp-pet::after {
+      content: "";
+      position: absolute;
+      top: 40%;
+      width: 9px;
+      height: 11px;
+      border-radius: 50%;
+      background: #2a0a1c;
+      animation: blink 5s infinite;
+    }
+    .dp-pet::before { left: 33%; }
+    .dp-pet::after { right: 33%; }
+    .dp-pet i {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      width: 16px;
+      height: 8px;
+      margin-left: -8px;
+      border: 2.5px solid #2a0a1c;
+      border-top: 0;
+      border-radius: 0 0 16px 16px;
+    }
+    @keyframes float { 50% { transform: translateY(-7px); } }
+    @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+    .dp-eyebrow, .dp-kicker {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--violet);
+    }
+    .dp-hero h3 {
+      margin-top: 4px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .dp-lede { margin-top: 10px; color: var(--muted); }
+    .dp-cta {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+    .dp-cta .tags { margin-top: 0; }
+    .dp-btn {
+      padding: 7px 14px;
+      border: 1px solid rgba(167, 139, 250, .5);
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--violet);
+      text-decoration: none;
+      transition: background .2s ease;
+    }
+    .dp-btn:hover, .dp-btn:focus-visible { background: rgba(167, 139, 250, .14); outline: none; }
+
+    .dp-block { padding: 24px; }
+    .dp-kicker span { margin-right: 10px; color: var(--faint); }
+    .dp-block h4 {
+      margin-top: 6px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .dp-block > p { margin-top: 8px; font-size: 0.9375rem; color: var(--muted); }
+    .dp-block em { color: var(--text); font-style: normal; }
+
+    /* Charts: thin lines, recessive axes, text in text colours */
+    .dp-fig { margin-top: 18px; }
+    .dp-fig svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .dp-fig figcaption { margin-top: 8px; font-size: 0.8125rem; color: var(--faint); }
+    .dp-fig .lbl { font: 600 11px "Inter", sans-serif; fill: var(--muted); }
+    .dp-fig .tick { font-weight: 500; fill: var(--faint); text-anchor: middle; }
+    .dp-fig text.tick[x="630"] { text-anchor: start; }
+    .dp-fig .axis { stroke: var(--line); }
+    .dp-fig .thr { stroke: rgba(255, 255, 255, .18); stroke-dasharray: 3 4; }
+    .dp-fig .ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .dp-fig .bored { stroke: var(--gold); }
+    .dp-fig .energy { stroke: var(--cyan); }
+    .dp-fig .reward { stroke: var(--violet); }
+    .dp-fig .dot { fill: var(--violet); stroke: var(--bg); stroke-width: 2; }
+    .dp-fig .bar-r { fill: var(--violet); fill-opacity: .75; transition: fill-opacity .15s ease; }
+    .dp-fig .bar-r:hover { fill-opacity: 1; }
+    .dp-fig .band { transition: fill-opacity .15s ease; }
+    .dp-fig .explore rect, .k-explore { fill: var(--violet); background: var(--violet); fill-opacity: .16; }
+    .dp-fig .sleep, .k-sleep { fill: #6366f1; background: #6366f1; fill-opacity: .1; }
+    .dp-fig .dream, .k-dream { fill: var(--rose); background: var(--rose); fill-opacity: .28; }
+    .dp-fig .explore rect:hover { fill-opacity: .3; }
+    .dp-key { list-style: none; display: inline-flex; gap: 14px; margin-right: 10px; }
+    .dp-key li { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+    .dp-key i { width: 10px; height: 10px; border-radius: 3px; opacity: .55; }
+    .dp-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    /* The dream: quoted scenes, each with the memory it came from */
+    .dp-dream {
+      margin-top: 18px;
+      padding: 20px 22px;
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgba(244, 114, 182, .08), rgba(99, 102, 241, .06));
+      border: 1px solid rgba(244, 114, 182, .2);
+    }
+    .dp-dream-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+    .dp-dream-title { font-family: "Space Grotesk", sans-serif; font-size: 1.125rem; font-weight: 600; }
+    .dp-chip {
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(244, 114, 182, .14);
+      font-size: 0.75rem;
+      color: #fbcfe8;
+    }
+    .dp-date { margin-left: auto; font-size: 0.75rem; color: var(--faint); }
+    .dp-dream blockquote { margin-top: 14px; }
+    .dp-dream blockquote p {
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .dp-dream blockquote p + cite { margin-bottom: 14px; }
+    .dp-dream cite {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.75rem;
+      font-style: normal;
+      color: var(--faint);
+    }
+    .dp-dream cite em { color: var(--muted); font-style: normal; }
+    .dp-dream cite::before { content: "↳ "; color: var(--rose); }
+    .dp-checks {
+      list-style: none;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      font-size: 0.8125rem;
+      color: var(--muted);
+    }
+    .dp-checks li::before { content: "✓ "; color: var(--emerald); font-weight: 700; }
+    .dp-checks b { color: var(--text); font-weight: 600; }
+    /* Dream films: muted loops that play while on screen, with a sound toggle */
+    .dp-film {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+    }
+    .dp-film-main { margin-bottom: 18px; box-shadow: 0 12px 40px -12px rgba(244, 114, 182, .45); }
+    .dp-film video { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .dp-sound {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(255, 255, 255, .25);
+      border-radius: 50%;
+      background: rgba(5, 6, 15, .55) center / 16px no-repeat;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      cursor: pointer;
+      /* speaker with a cross: muted */
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8ebff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4z'/%3E%3Cpath d='m22 9-6 6M16 9l6 6'/%3E%3C/svg%3E");
+    }
+    .dp-sound[aria-pressed="true"] {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8ebff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14'/%3E%3C/svg%3E");
+    }
+    .dp-sound:hover, .dp-sound:focus-visible { border-color: var(--rose); outline: none; }
+    .dp-reel { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .dp-reel figcaption { margin-top: 6px; font-size: 0.8125rem; color: var(--muted); }
+    .dp-block > p.dp-note { margin-top: 12px; font-size: 0.8125rem; color: var(--faint); }
+
+    /* Traits */
+    .dp-traits { list-style: none; margin-top: 16px; display: grid; gap: 10px; }
+    .dp-traits li {
+      display: grid;
+      grid-template-columns: 110px 140px 1fr;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.875rem;
+    }
+    .dp-traits .t { color: var(--text); }
+    .dp-traits .bar {
+      position: relative;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .07);
+    }
+    .dp-traits .bar::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: calc(var(--v) * 1%);
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--violet), var(--rose));
+    }
+    .dp-traits .fx { color: var(--muted); }
+
+    /* Engineering facts */
+    .dp-facts {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px 22px;
+    }
+    .dp-facts h5 { font-size: 0.9375rem; font-weight: 600; }
+    .dp-facts h5::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin: 0 8px 2px 0;
+      border-radius: 50%;
+      background: var(--violet);
+      box-shadow: 0 0 8px var(--violet);
+    }
+    .dp-facts p { margin-top: 4px; font-size: 0.8125rem; color: var(--muted); }
+
+    @media (max-width: 600px) {
+      .dp-hero { flex-direction: column; align-items: flex-start; gap: 18px; padding: 22px; }
+      .dp-pet { width: 76px; height: 76px; }
+      .dp-hero h3 { font-size: 1.75rem; }
+      .dp-block { padding: 20px; }
+      .dp-pair, .dp-reel { grid-template-columns: 1fr; }
+      .dp-day .lbl { font-size: 17px; }
+      .dp-traits li { grid-template-columns: 1fr 1fr; gap: 6px 12px; }
+      .dp-traits .fx { grid-column: 1 / -1; font-size: 0.8125rem; }
+      .dp-date { margin-left: 0; }
+    }
+
     /* Writing: article cards in the same grid as Projects, glowing rose */
     .post .date {
       font-size: 0.75rem;
@@ -726,20 +984,151 @@
       <div class="section-head">
         <a class="more" href="https://github.com/weirui828?tab=repositories" target="_blank" rel="noopener">More on GitHub →</a>
       </div>
-      <div class="projects">
-        <a class="glass project" href="https://github.com/weirui828/dream-pet" target="_blank" rel="noopener">
-          <span class="icon" aria-hidden="true">🌙</span>
-          <h3>Dream Pet</h3>
-          <p>A self-hosted AI companion that gets bored, explores the web, chats with you, and dreams at night.</p>
-          <ul class="tags"><li>Python</li><li>LangGraph</li><li>FastAPI</li><li>Next.js</li></ul>
-        </a>
-        <a class="glass project" href="https://github.com/weirui828/triagekit" target="_blank" rel="noopener">
-          <span class="icon" aria-hidden="true">🧭</span>
-          <h3>TriageKit</h3>
-          <p>Human-in-the-loop text triage with reproducible training, tiered routing, and continuous feedback.</p>
-          <ul class="tags"><li>Python</li><li>ML</li><li>Human-in-the-loop</li></ul>
-        </a>
-      </div>
+
+      <article class="dp">
+        <header class="glass dp-hero">
+          <div class="dp-pet" aria-hidden="true"><i></i></div>
+          <div class="dp-intro">
+            <p class="dp-eyebrow">Open source · self-hosted</p>
+            <h3>Dream Pet</h3>
+            <p class="dp-lede">An AI pet with an inner life. Your pet gets bored, wanders off to read the web about whatever it's curious about, and at night turns what it read into a dream, every scene traceable to a page it really read.</p>
+            <div class="dp-cta">
+              <a class="dp-btn" href="https://github.com/weirui828/dream-pet" target="_blank" rel="noopener">Source on GitHub →</a>
+              <ul class="tags"><li>Python</li><li>LangGraph</li><li>FastAPI</li><li>Next.js</li><li>Local LLMs</li></ul>
+            </div>
+          </div>
+        </header>
+
+        <div class="glass dp-block">
+          <p class="dp-kicker"><span>01</span>Drives</p>
+          <h4>It does things because it wants to</h4>
+          <p>Nobody tells the pet to explore. Boredom creeps up while it's awake, and once it passes 0.66 the pet goes off to read. Every satisfying page pulls boredom back down, and the session ends below 0.30. Searching and reading cost energy, and sleep brings it back. Bedtime is 22:00, and once a night it dreams.</p>
+          <figure class="dp-fig">
+            <svg class="dp-day" viewBox="0 0 660 214" role="img" aria-labelledby="dp-day-t">
+              <title id="dp-day-t">A simulated day: boredom rises to 0.66, drops during two exploring sessions, and decays overnight; energy dips while exploring and refills during sleep.</title>
+              <g class="band explore"><rect x="194" y="10" width="26" height="180"><title>Exploring · 13:27, five reads</title></rect><rect x="378" y="10" width="21" height="180"><title>Exploring · 20:57, four reads</title></rect></g>
+              <rect class="band sleep" x="403.5" y="10" width="220.5" height="180"><title>Asleep · 22:00–07:00</title></rect>
+              <rect class="band dream" x="428" y="10" width="10" height="180"><title>Dreaming · about an hour after bedtime</title></rect>
+              <text class="lbl" x="36" y="10">Boredom</text>
+              <line class="axis" x1="36" y1="78" x2="624" y2="78" />
+              <line class="thr" x1="36" y1="35.8" x2="624" y2="35.8" /><text class="lbl tick" x="630" y="39">0.66</text>
+              <line class="thr" x1="36" y1="58.8" x2="624" y2="58.8" /><text class="lbl tick" x="630" y="62">0.30</text>
+              <path class="ln bored" d="M36.0 58.8L42.1 57.6L48.2 56.4L54.4 55.2L60.5 54.1L66.6 52.9L72.8 51.9L78.9 50.8L85.0 49.8L91.1 48.8L97.2 47.9L103.4 46.9L109.5 46.0L115.6 45.1L121.8 44.3L127.9 43.4L134.0 42.6L140.1 41.8L146.2 41.1L152.4 40.3L158.5 39.6L164.6 38.9L170.8 38.2L176.9 37.5L183.0 36.9L189.1 36.2L195.2 35.6L201.4 35.0L201.4 40.2L207.5 39.4L207.5 44.8L207.5 50.1L213.6 49.1L213.6 54.9L219.8 53.8L219.8 60.7L225.9 59.4L232.0 58.2L238.1 57.0L244.2 55.8L250.4 54.6L256.5 53.5L262.6 52.4L268.8 51.3L274.9 50.3L281.0 49.3L287.1 48.3L293.2 47.4L299.4 46.5L305.5 45.6L311.6 44.7L317.8 43.8L323.9 43.0L330.0 42.2L336.1 41.4L342.2 40.7L348.4 40.0L354.5 39.2L360.6 38.5L366.8 37.9L372.9 37.2L379.0 36.6L385.1 35.9L385.1 42.1L391.2 41.4L391.2 47.8L397.4 46.9L397.4 53.8L397.4 60.7L403.5 59.4L409.6 59.7L415.8 59.9L421.9 60.1L428.0 60.3L434.1 60.6L440.2 60.8L446.4 61.0L452.5 61.2L458.6 61.4L464.8 61.6L470.9 61.8L477.0 62.0L483.1 62.2L489.2 62.4L495.4 62.6L501.5 62.8L507.6 63.0L513.8 63.2L519.9 63.4L526.0 63.5L532.1 63.7L538.2 63.9L544.4 64.1L550.5 64.2L556.6 64.4L562.8 64.6L568.9 64.7L575.0 64.9L581.1 65.1L587.2 65.2L593.4 65.4L599.5 65.6L605.6 65.7L611.8 65.9L617.9 66.0L624.0 66.2" />
+              <text class="lbl" x="36" y="118">Energy</text>
+              <line class="axis" x1="36" y1="186" x2="624" y2="186" />
+              <text class="lbl tick" x="630" y="126">120</text><text class="lbl tick" x="630" y="190">0</text>
+              <path class="ln energy" d="M36.0 122.0L42.1 122.0L48.2 122.0L54.4 122.0L60.5 122.0L66.6 122.0L72.8 122.0L78.9 122.0L85.0 122.0L91.1 122.0L97.2 122.0L103.4 122.0L109.5 122.0L115.6 122.0L121.8 122.0L127.9 122.0L134.0 122.0L140.1 122.0L146.2 122.0L152.4 122.0L158.5 122.0L164.6 122.0L170.8 122.0L176.9 122.0L183.0 122.0L189.1 122.0L195.2 122.0L195.2 123.1L201.4 123.1L201.4 125.2L207.5 125.2L207.5 127.3L207.5 128.4L207.5 130.5L213.6 130.5L213.6 132.7L219.8 132.7L219.8 134.8L225.9 134.8L232.0 134.8L238.1 134.8L244.2 134.8L250.4 134.8L256.5 134.8L262.6 134.8L268.8 134.8L274.9 134.8L281.0 134.8L287.1 134.8L293.2 134.8L299.4 134.8L305.5 134.8L311.6 134.8L317.8 134.8L323.9 134.8L330.0 134.8L336.1 134.8L342.2 134.8L348.4 134.8L354.5 134.8L360.6 134.8L366.8 134.8L372.9 134.8L379.0 134.8L379.0 135.9L385.1 135.9L385.1 138.0L391.2 138.0L391.2 140.1L391.2 141.2L397.4 141.2L397.4 143.3L397.4 145.5L403.5 145.5L409.6 143.1L415.8 140.8L421.9 138.5L428.0 136.2L434.1 133.9L440.2 131.5L446.4 129.2L452.5 126.9L458.6 124.6L464.8 122.3L470.9 122.0L477.0 122.0L483.1 122.0L489.2 122.0L495.4 122.0L501.5 122.0L507.6 122.0L513.8 122.0L519.9 122.0L526.0 122.0L532.1 122.0L538.2 122.0L544.4 122.0L550.5 122.0L556.6 122.0L562.8 122.0L568.9 122.0L575.0 122.0L581.1 122.0L587.2 122.0L593.4 122.0L599.5 122.0L605.6 122.0L611.8 122.0L617.9 122.0L624.0 122.0" />
+              <g class="lbl tick xt"><text x="36" y="206">07:00</text><text x="158.5" y="206">12:00</text><text x="305.5" y="206">18:00</text><text x="403.5" y="206">22:00</text><text x="526" y="206">03:00</text><text x="624" y="206">07:00</text></g>
+            </svg>
+            <figcaption>
+              <ul class="dp-key"><li><i class="k-explore"></i>exploring</li><li><i class="k-sleep"></i>asleep</li><li><i class="k-dream"></i>dreaming</li></ul>
+              A day simulated from the pet's own equations, using the settings of my pet, Pip: boredom grows as 1 − (1 − B)·e<sup>−0.112h</sup>, reads cost 4 energy, sleep restores 17.4 an hour.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="glass dp-block">
+          <p class="dp-kicker"><span>02</span>Curiosity</p>
+          <h4>Curiosity you can measure</h4>
+          <p>Before opening a page, the pet writes down what it expects the page to say. How far the guess lands from the real thing is its <em>surprise</em>. It enjoys moderate surprise most, because a page it predicted perfectly teaches nothing and a page it can't make sense of is just noise. Topics where its guesses keep getting better pull it back, and reading the same topic again pays a little less each time.</p>
+          <div class="dp-pair">
+            <figure class="dp-fig">
+              <svg viewBox="0 0 290 140" role="img" aria-labelledby="dp-rw-t">
+                <title id="dp-rw-t">Reward peaks at a surprise of about 0.18 and falls off on both sides.</title>
+                <text class="lbl" x="28" y="10">Reward by surprise</text>
+                <line class="axis" x1="28" y1="112" x2="278" y2="112" />
+                <line class="thr" x1="128.6" y1="18" x2="128.6" y2="112" />
+                <path class="ln reward" d="M28.0 108.3L33.6 106.8L39.1 104.8L44.7 102.2L50.2 98.9L55.8 94.9L61.3 90.1L66.9 84.5L72.4 78.2L78.0 71.1L83.6 63.6L89.1 55.9L94.7 48.1L100.2 40.7L105.8 34.0L111.3 28.3L116.9 23.9L122.4 21.1L128.0 20.0L133.6 20.7L139.1 23.2L144.7 27.3L150.2 32.7L155.8 39.3L161.3 46.6L166.9 54.3L172.4 62.1L178.0 69.7L183.6 76.8L189.1 83.3L194.7 89.0L200.2 94.0L205.8 98.2L211.3 101.6L216.9 104.3L222.4 106.4L228.0 108.0L233.6 109.2L239.1 110.1L244.7 110.7L250.2 111.2L255.8 111.5L261.3 111.7L266.9 111.8L272.4 111.9L278.0 111.9" />
+                <circle class="dot" cx="128.6" cy="20" r="4.5"><title>Peak · surprise 0.18</title></circle>
+                <text class="lbl tick" x="140" y="24" style="text-anchor: start">sweet spot · 0.18</text>
+                <g class="lbl tick xt"><text x="28" y="130">0</text><text x="83.6" y="130">0.1</text><text x="139.1" y="130">0.2</text><text x="194.7" y="130">0.3</text><text x="250.2" y="130">0.4</text></g>
+              </svg>
+              <figcaption>Surprise = distance between guess and page in embedding space.</figcaption>
+            </figure>
+            <figure class="dp-fig">
+              <svg viewBox="0 0 290 140" role="img" aria-labelledby="dp-hb-t">
+                <title id="dp-hb-t">Reward kept on repeat reads of one topic: 100, 81, 66, 53, 43, 35 and 28 percent.</title>
+                <text class="lbl" x="10" y="10">Reward for repeat reads</text>
+                <line class="axis" x1="10" y1="112" x2="280" y2="112" />
+                <g><rect class="bar-r" x="14" y="34.0" width="30" height="78.0" rx="4"><title>1st read · 100% of the reward</title></rect><text class="lbl tick" x="29" y="29.0">100%</text><text class="lbl tick" x="29" y="130">1st</text></g><g><rect class="bar-r" x="52" y="48.8" width="30" height="63.2" rx="4"><title>2nd read · 81% of the reward</title></rect><text class="lbl tick" x="67" y="43.8">81%</text><text class="lbl tick" x="67" y="130">2nd</text></g><g><rect class="bar-r" x="90" y="60.5" width="30" height="51.5" rx="4"><title>3rd read · 66% of the reward</title></rect><text class="lbl tick" x="105" y="55.5">66%</text><text class="lbl tick" x="105" y="130">3rd</text></g><g><rect class="bar-r" x="128" y="70.7" width="30" height="41.3" rx="4"><title>4th read · 53% of the reward</title></rect><text class="lbl tick" x="143" y="65.7">53%</text><text class="lbl tick" x="143" y="130">4th</text></g><g><rect class="bar-r" x="166" y="78.5" width="30" height="33.5" rx="4"><title>5th read · 43% of the reward</title></rect><text class="lbl tick" x="181" y="73.5">43%</text><text class="lbl tick" x="181" y="130">5th</text></g><g><rect class="bar-r" x="204" y="84.7" width="30" height="27.3" rx="4"><title>6th read · 35% of the reward</title></rect><text class="lbl tick" x="219" y="79.7">35%</text><text class="lbl tick" x="219" y="130">6th</text></g><g><rect class="bar-r" x="242" y="90.2" width="30" height="21.8" rx="4"><title>7th read · 28% of the reward</title></rect><text class="lbl tick" x="257" y="85.2">28%</text><text class="lbl tick" x="257" y="130">7th</text></g>
+              </svg>
+              <figcaption>Each read on the same topic keeps 81% of the last one's reward.</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="glass dp-block">
+          <p class="dp-kicker"><span>03</span>Dreams</p>
+          <h4>Then it dreams about it</h4>
+          <p>At night the pet picks the memories that mattered, wanders from each to related-but-different ones, and weaves a short surreal dream. A critic sends drafts back if any scene isn't built from a real memory, or if more than 12 words in a row are copied from a source. Then a screenwriter turns the dream into a 10-second film script, ready to render with a video model.</p>
+          <div class="dp-dream">
+            <div class="dp-film dp-film-main">
+              <video src="assets/dreams/sovereigns-ghost.mp4" poster="assets/dreams/sovereigns-ghost.jpg" muted loop playsinline preload="none" aria-label="The Sovereign's Ghost, a 10-second film of the dream"></video>
+              <button class="dp-sound" type="button" aria-pressed="false" aria-label="Turn sound on"></button>
+            </div>
+            <p class="dp-dream-head"><span class="dp-dream-title">The Sovereign's Ghost</span><span class="dp-chip">Ethereal and inquisitive</span><span class="dp-date">Dreamt by Pip, 13 Oct</span></p>
+            <blockquote>
+              <p>I am floating in a gray void where ancient Roman ‘securitas’ echoes like a fading religious chant. The air tastes of dusty scrolls and ambiguous meanings, shifting toward the sharp ‘certitudo’ of a medieval tower.</p>
+              <cite>from <em>A Brief Semantic History of Securitas</em></cite>
+              <p>Suddenly, the scenery fractures into a digital lattice. I see walls of code, Content Security Policies, acting as high-tech fortresses to prevent the ‘hijacking’ of my thoughts.</p>
+              <cite>from <em>CSP: form-action and redirects</em>, w3c/webappsec-csp</cite>
+              <p>The walls begin to crumble into light beams. I see the physical rules of scattering acting as boundaries, much like a script-src directive defines what is allowed to run.</p>
+              <cite>from an insight on <em>CSP bypass using Google script resources</em></cite>
+            </blockquote>
+            <ul class="dp-checks" aria-label="Critic's checks">
+              <li><b>5</b> scenes</li>
+              <li><b>241</b> words</li>
+              <li><b>100%</b> scenes cite memories</li>
+              <li><b>3</b>-word longest copied run</li>
+              <li><b>0.95</b> critic's score</li>
+            </ul>
+          </div>
+          <div class="dp-reel">
+            <figure>
+              <div class="dp-film">
+                <video src="assets/dreams/archivists-hibernation.mp4" poster="assets/dreams/archivists-hibernation.jpg" muted loop playsinline preload="none" aria-label="The Archivist's Hibernation, a 10-second dream film"></video>
+                <button class="dp-sound" type="button" aria-pressed="false" aria-label="Turn sound on"></button>
+              </div>
+              <figcaption>The Archivist's Hibernation</figcaption>
+            </figure>
+            <figure>
+              <div class="dp-film">
+                <video src="assets/dreams/why-sky-blue.mp4" poster="assets/dreams/why-sky-blue.jpg" muted loop playsinline preload="none" aria-label="A 10-second dream film about why the sky is blue"></video>
+                <button class="dp-sound" type="button" aria-pressed="false" aria-label="Turn sound on"></button>
+              </div>
+              <figcaption>Why is the sky blue?</figcaption>
+            </figure>
+          </div>
+          <p class="dp-note">A week earlier my pet, Pip, was dreaming about why the sky is blue. Since then it has wandered via Lord Rayleigh, who explained the blue sky and sat in on séances, to web security and the Latin root of the word itself.</p>
+        </div>
+
+        <div class="glass dp-block">
+          <p class="dp-kicker"><span>04</span>Personality</p>
+          <h4>Personality is wiring, not a vibe</h4>
+          <p>Each trait turns specific dials in the drives above. Every night the pet may nudge its own traits by up to 3 points, and it has to cite what it read to do it. Here's how Pip is set up:</p>
+          <ul class="dp-traits">
+            <li><span class="t">restlessness</span><span class="bar" style="--v: 70"></span><span class="fx">boredom grows 1.39× faster</span></li>
+            <li><span class="t">openness</span><span class="bar" style="--v: 85"></span><span class="fx">16% chance of a wildcard topic</span></li>
+            <li><span class="t">depth</span><span class="bar" style="--v: 55"></span><span class="fx">favours its most promising topics</span></li>
+            <li><span class="t">sociability</span><span class="bar" style="--v: 60"></span><span class="fx">messages you first, up to 4 a day</span></li>
+            <li><span class="t">stamina</span><span class="bar" style="--v: 70"></span><span class="fx">120 energy, 17.4 an hour back asleep</span></li>
+            <li><span class="t">dreaminess</span><span class="bar" style="--v: 60"></span><span class="fx">dreams at temperature 0.9, 3 hops wide</span></li>
+          </ul>
+        </div>
+
+        <div class="glass dp-block">
+          <p class="dp-kicker"><span>05</span>Engineering</p>
+          <h4>Whimsical on the outside, strict on the inside</h4>
+          <div class="dp-facts">
+            <div><h5>Code decides, models answer</h5><p>A scheduler ticks every 10 minutes and never calls a model. Each behaviour is a LangGraph graph whose model steps fill a schema and can't call tools.</p></div>
+            <div><h5>$2 a day, enforced in code</h5><p>Every call is priced before it's made and refused if it would break the cap. Runs on a local Gemma 12B with Qwen3 embeddings; only web search costs money.</p></div>
+            <div><h5>The web is untrusted</h5><p>Pages are cleaned, capped and quoted to the model as data, never instructions. It respects robots.txt and gets a safety check before anything becomes a memory.</p></div>
+            <div><h5>Memories fade, never vanish</h5><p>Recall favours recent memories. Unused ones weaken ×0.92 a night and get archived, never deleted. Anything a dream used stops fading.</p></div>
+            <div><h5>Lives through a closed laptop</h5><p>When the machine wakes, the pet replays the nights it missed at their real times: bedtime, dream, wake-up.</p></div>
+            <div><h5>Reproducible on a fake clock</h5><p>The same graphs run on a simulated clock with recorded or fake models, so runs are fast and repeatable.</p></div>
+          </div>
+        </div>
+      </article>
     </section>
 
     <section id="writing" role="tabpanel" aria-labelledby="tab-writing" hidden>
@@ -1820,6 +2209,37 @@
     if (initial !== tabs[0] || location.hash) {
       addEventListener("load", () => scrollTo({ top: tabsTop() }));
     }
+
+    // Dream films: loop silently while on screen (not with reduced motion); click a film to play/pause,
+    // and the speaker button gives one film sound at a time
+    const films = [...document.querySelectorAll(".dp-film video")];
+    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!calm && "IntersectionObserver" in window) {
+      const seen = new IntersectionObserver(entries => entries.forEach(({ target, isIntersecting }) => {
+        if (isIntersecting) target.play().catch(() => {});
+        else target.pause();
+      }), { threshold: 0.5 });
+      films.forEach(v => seen.observe(v));
+    }
+    films.forEach(v => {
+      v.addEventListener("click", () => v.paused ? v.play().catch(() => {}) : v.pause());
+      const btn = v.parentElement.querySelector(".dp-sound");
+      btn.addEventListener("click", () => {
+        const on = v.muted;
+        films.forEach(o => {
+          o.muted = true;
+          const b = o.parentElement.querySelector(".dp-sound");
+          b.setAttribute("aria-pressed", "false");
+          b.setAttribute("aria-label", "Turn sound on");
+        });
+        if (on) {
+          v.muted = false;
+          btn.setAttribute("aria-pressed", "true");
+          btn.setAttribute("aria-label", "Turn sound off");
+          v.play().catch(() => {});
+        }
+      });
+    });
   </script>
 </body>
 </html>
