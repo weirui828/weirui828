@@ -553,7 +553,46 @@
       box-shadow: 0 0 8px var(--c);
     }
     .map-legend i.ring { background: none; border: 1.5px solid var(--c); }
-    .stops[hidden], .map-legend[hidden] { display: none; }
+    .stops[hidden], .map-legend[hidden], .map-zoom[hidden] { display: none; }
+    .map-zoom {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .map-zoom button {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(10, 12, 28, .75);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      color: var(--text);
+      font: 600 16px/1 "Inter", sans-serif;
+      cursor: pointer;
+    }
+    .map-zoom button:hover { box-shadow: var(--glow); }
+    .map-hint {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+    .map-hint.show { opacity: 1; }
+    .map-hint span {
+      padding: 8px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(5, 6, 15, .85);
+      font-size: 0.875rem;
+      color: var(--text);
+    }
     @media (max-width: 600px) {
       .stops .region { display: none; }
     }
@@ -690,6 +729,12 @@
       <div class="globe-wrap">
         <canvas id="globe" role="img" aria-label="A globe tracing my moves: Suiping, Zhuhai, Guangzhou, Fairfield, New York City, Stamford, Boston, San Diego, San Francisco, and next, Sydney."></canvas>
         <div class="globe-status" id="globe-status">Loading the globe…</div>
+        <div class="map-hint" id="map-hint" aria-hidden="true"><span></span></div>
+        <div class="map-zoom" id="map-zoom" hidden>
+          <button type="button" data-zoom="in" aria-label="Zoom in">+</button>
+          <button type="button" data-zoom="out" aria-label="Zoom out">−</button>
+          <button type="button" data-zoom="reset" aria-label="Reset zoom">⟲</button>
+        </div>
       </div>
       <ol class="stops" id="stops"></ol>
       <ul class="map-legend" id="map-legend" hidden>
@@ -984,6 +1029,13 @@
       let view = "lived", flat = 0, flatTween = null;
       // Visited map: the random spotlight and the place under the pointer
       let spot = null, bag = [], hover = -1, tapTimer = 0;
+      // Flat-map zoom: mapK = zoom factor (1 = whole world), pan = screen offset, mapAnim = eased zoom
+      let mapK = 1, pan = [0, 0], mapAnim = null;
+      const pointers = new Map();          // active pointers on the map, for drag and pinch
+      let press = null, pinch = null, lastTap = null;
+      const zoomEl = document.getElementById("map-zoom");
+      const hintEl = document.getElementById("map-hint");
+      let hintTimer = 0;
 
       // Legend chips double as the accessible list of places
       const chips = CITIES.map((c, i) => {
@@ -1055,6 +1107,7 @@
         canvas.height = Math.round(H * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         radius = Math.min(W, H) * 0.42;
+        if (projection) pan = clampPan(mapK, pan);
         kick();
       }
 
@@ -1116,6 +1169,7 @@
         mode = "map";
         focused = -1;
         spot = null;
+        mapK = 1; pan = [0, 0]; mapAnim = null;
         if (instant || still) {
           cam = { rot: [...FLAT_ROT], zoom: 1 };
           tween = null;
@@ -1131,8 +1185,12 @@
       function leaveMap(now) {
         hover = -1;
         spot = null;
-        if (still) { flat = 0; flatTween = null; restart(); return; }
-        flatTween = { from: flat, to: 0, start: now, dur: 1500, done: restart };
+        pointers.clear(); press = pinch = null;
+        if (still) { mapK = 1; pan = [0, 0]; flat = 0; flatTween = null; restart(); return; }
+        // zoom back out to the whole world first, then roll the map up
+        const delay = mapK > 1.01 ? 450 : 0;
+        if (delay) zoomAt(W / 2, H / 2, 1, delay);
+        flatTween = { from: flat, to: 0, start: now + delay, dur: 1500, done: restart };
         kick();
       }
       function setView(v) {
@@ -1144,6 +1202,7 @@
         replayEl.hidden = map;
         stopsEl.hidden = map;
         legendEl.hidden = !map;
+        zoomEl.hidden = !map;
         canvas.setAttribute("aria-label", LABELS[v]);
         canvas.parentElement.classList.toggle("map", map);
         if (!projection) return;          // init() picks the view up once loaded
@@ -1151,6 +1210,45 @@
         else leaveMap(performance.now());
       }
       viewBtns.forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
+
+      // ----- flat-map zoom & pan -----
+      // Where the map's centre sits on screen at zoom k (before panning)
+      const mapOrigin = k => [W / 2, H / 2 + FLAT_MID * flatScale() * k];
+      function clampPan(k, p) {
+        const s = flatScale() * k;
+        const mx = Math.max(0, (2 * Math.PI * s - W) / 2);
+        const my = Math.max(0, (138 * Math.PI / 180 * s - H) / 2 + 24);
+        return [Math.max(-mx, Math.min(mx, p[0])), Math.max(-my, Math.min(my, p[1]))];
+      }
+      // Zoom to k2, keeping the map point under (mx, my) fixed on screen
+      function zoomAt(mx, my, k2, dur = 0) {
+        k2 = Math.max(1, Math.min(10, k2));
+        const o = mapOrigin(mapK), o2 = mapOrigin(k2);
+        const T = [o[0] + pan[0], o[1] + pan[1]];
+        const T2 = [mx - (mx - T[0]) * k2 / mapK, my - (my - T[1]) * k2 / mapK];
+        const p2 = k2 < 1.001 ? [0, 0] : clampPan(k2, [T2[0] - o2[0], T2[1] - o2[1]]);
+        if (dur && !still) mapAnim = { k0: mapK, k1: k2, p0: [...pan], p1: p2, start: performance.now(), dur };
+        else { mapK = k2; pan = p2; mapAnim = null; }
+        if (k2 > 1.05) spot = null;
+        updateTouch();
+        kick();
+      }
+      // One finger scrolls the page until the map is zoomed in; then it pans the map
+      function updateTouch() {
+        canvas.style.touchAction = view === "visited" && (mapK > 1.01 || (mapAnim && mapAnim.k1 > 1.01)) ? "none" : "pan-y";
+      }
+      function showHint() {
+        hintEl.classList.add("show");
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => hintEl.classList.remove("show"), 1400);
+      }
+      hintEl.firstElementChild.textContent = `Use ${/Mac|iP/.test(navigator.platform) ? "⌘" : "Ctrl"} + scroll to zoom the map`;
+      zoomEl.addEventListener("click", e => {
+        const b = e.target.closest("button");
+        if (!b || !projection || flat < 1) return;
+        const k = { in: mapK * 1.8, out: mapK / 1.8, reset: 1 }[b.dataset.zoom];
+        zoomAt(W / 2, H / 2, k, 380);
+      });
 
       // Shuffle-bag so every visited place gets a turn before any repeats
       function nextSpot(now) {
@@ -1181,11 +1279,18 @@
             done?.();
           }
         }
+        if (mapAnim) {
+          const t = Math.min(1, (now - mapAnim.start) / mapAnim.dur), k = ease(t);
+          mapK = Math.exp(lerp(Math.log(mapAnim.k0), Math.log(mapAnim.k1), k));
+          pan = [0, 1].map(j => lerp(mapAnim.p0[j], mapAnim.p1[j], k));
+          if (t === 1) { mapAnim = null; updateTouch(); }
+        }
         // The round mask only suits the globe; drop it once the map starts to unroll
         canvas.classList.toggle("flat", flat > 0);
 
         if (mode === "map") {
-          if (flat === 1 && hover < 0 && !still && (!spot || now - spot.start > SPOT_MS)) nextSpot(now);
+          // The random spotlight runs only at full-world zoom, when nobody is exploring
+          if (flat === 1 && hover < 0 && mapK < 1.05 && !still && (!spot || now - spot.start > SPOT_MS)) nextSpot(now);
           return;
         }
         if (mode !== "story") {
@@ -1222,13 +1327,14 @@
       const FLAT_MID = 11 * Math.PI / 180;
 
       function draw(now) {
-        const s1 = flatScale();
+        const s1 = flatScale() * mapK;
         const s = lerp(radius * cam.zoom, s1, flat);
+        const o = mapOrigin(mapK);
         morph(flat);
         projection
           .rotate(cam.rot)
           .scale(s)
-          .translate([W / 2, lerp(H / 2, H / 2 + FLAT_MID * s1, flat)])
+          .translate([lerp(W / 2, o[0] + pan[0], flat), lerp(H / 2, o[1] + pan[1], flat)])
           .clipAngle(flat > 0.999 ? null : 90 + 89 * flat);
         const center = [-cam.rot[0], -cam.rot[1]];
         const reach = flat > 0.999 ? Infinity : (Math.PI / 2) * (1 + flat * 0.99);
@@ -1258,11 +1364,12 @@
         ctx.globalAlpha = 1;
 
         // Faint filled land underneath, so close-up views still show the coastline
-        ctx.fillStyle = "rgba(154, 166, 255, .07)";
+        // (stronger when the flat map is zoomed in and the dot grid spreads out)
+        ctx.fillStyle = `rgba(154, 166, 255, ${0.07 + 0.07 * Math.min(1, (mapK - 1) / 3) * flat})`;
         ctx.beginPath(); path(land); ctx.fill();
 
         // Land as dots, dimmer towards the limb for depth (even across the flat map)
-        const dotR = lerp(Math.max(0.9, Math.min(2.2, 0.0045 * r)), Math.max(1, W / 620), flat);
+        const dotR = lerp(Math.max(0.9, Math.min(2.2, 0.0045 * r)), Math.max(1, W / 620) * Math.sqrt(mapK), flat);
         for (const dpt of dots) {
           const dist = d3.geoDistance(dpt, center);
           if (dist > reach) continue;
@@ -1381,7 +1488,22 @@
           t = (now - spot.start) / SPOT_MS;
           a = Math.min(1, t / 0.12, (1 - t) / 0.15);   // fade in, hold, fade out
         }
-        if (!p || a <= 0) return;
+        const placed = [];
+        if (p && a > 0) drawHighlight(p, a, r0, now, placed);
+
+        // Zoomed in: name every place in view (the highlighted one already claimed its spot)
+        if (mapK >= 2.2) {
+          const fade = Math.min(1, (mapK - 2.2) / 0.6);
+          for (const q of PLACES) {
+            if (q === p) continue;
+            const [x, y] = projection(q.coord);
+            if (x < 0 || y < 0 || x > W || y > H) continue;
+            drawLabel(q.name, x, y, COLORS[q.kind], placed, 0.85 * fade);
+          }
+        }
+      }
+
+      function drawHighlight(p, a, r0, now, placed) {
         const [x, y] = projection(p.coord);
         const color = COLORS[p.kind || "visited"];
         ctx.globalAlpha = a;
@@ -1397,7 +1519,7 @@
         ctx.shadowBlur = 18;
         ctx.beginPath(); ctx.arc(x, y, r0 + 2.5, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
-        drawLabel(placeLabel(p), x, y, color, [], a);
+        drawLabel(placeLabel(p), x, y, color, placed, a);
       }
 
       function drawArc(i, upTo) {
@@ -1439,43 +1561,118 @@
         });
         return best;
       }
+      const local = e => {
+        const rect = canvas.getBoundingClientRect();
+        return [e.clientX - rect.left, e.clientY - rect.top];
+      };
+      const onMap = () => view === "visited" && flat === 1;
+
       function bindPointer() {
         canvas.addEventListener("pointerdown", e => {
-          if (view === "visited") {
-            if (e.pointerType !== "touch" || flat < 1) return;
-            // tap: show the nearest place for a few seconds
-            hover = nearestPlace(e, 22);
-            clearTimeout(tapTimer);
-            tapTimer = setTimeout(() => { hover = -1; spot = null; }, 3000);
-            kick();
+          if (onMap()) {
+            pointers.set(e.pointerId, local(e));
+            canvas.setPointerCapture(e.pointerId);
+            if (pointers.size === 1) {
+              press = { at: local(e), pan: [...pan], moved: false, type: e.pointerType };
+            } else if (pointers.size === 2) {
+              const [p1, p2] = [...pointers.values()];
+              pinch = { d: Math.hypot(p1[0] - p2[0], p1[1] - p2[1]), mid: [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2] };
+              press = null;
+            }
             return;
           }
+          if (view === "visited") return;
           if (e.pointerType === "touch") return;      // let touch scroll the page
           dragging = { x: e.clientX, y: e.clientY, rot: [...cam.rot] };
           tween = null;
           if (mode === "story") { mode = "done"; showDone(performance.now(), 0); cam.rot = [...dragging.rot]; cam.zoom = Math.min(cam.zoom, 2); tween = null; }
           canvas.setPointerCapture(e.pointerId);
         });
+
         canvas.addEventListener("pointermove", e => {
-          if (view === "visited") {
-            if (e.pointerType === "touch" || flat < 1) return;
+          if (onMap()) {
+            const pt = local(e);
+            if (pointers.has(e.pointerId)) pointers.set(e.pointerId, pt);
+            if (pinch && pointers.size >= 2) {
+              // two fingers: zoom around their midpoint and follow it as it moves
+              const [p1, p2] = [...pointers.values()];
+              const d = Math.hypot(p1[0] - p2[0], p1[1] - p2[1]);
+              const mid = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+              zoomAt(mid[0], mid[1], mapK * d / pinch.d);
+              pan = clampPan(mapK, [pan[0] + mid[0] - pinch.mid[0], pan[1] + mid[1] - pinch.mid[1]]);
+              pinch = { d, mid };
+              hover = -1;
+              return;
+            }
+            if (press) {
+              const dx = pt[0] - press.at[0], dy = pt[1] - press.at[1];
+              if (Math.hypot(dx, dy) > 5) press.moved = true;
+              if (press.moved && mapK > 1.01) {
+                pan = clampPan(mapK, [press.pan[0] + dx, press.pan[1] + dy]);
+                hover = -1;
+                canvas.style.cursor = "grabbing";
+                kick();
+              }
+              return;
+            }
+            if (e.pointerType === "touch") return;
+            // mouse hover: name the place under the cursor
             const h = nearestPlace(e, 12);
             if (h !== hover) { hover = h; if (h < 0) spot = null; }
-            canvas.style.cursor = h >= 0 ? "pointer" : "default";
+            canvas.style.cursor = h >= 0 ? "pointer" : mapK > 1.01 ? "grab" : "default";
             return;
           }
+          if (view === "visited") return;
           canvas.style.cursor = "";
           if (!dragging) return;
           const k = 0.25 / cam.zoom;
           cam.rot = [dragging.rot[0] + (e.clientX - dragging.x) * k, Math.max(-80, Math.min(80, dragging.rot[1] - (e.clientY - dragging.y) * k))];
           kick();
         });
+
+        const release = e => {
+          dragging = null;
+          if (!pointers.has(e.pointerId)) return;
+          const tap = press && !press.moved && pointers.size === 1 && e.type === "pointerup";
+          pointers.delete(e.pointerId);
+          if (pointers.size < 2) pinch = null;
+          if (tap && press.type === "touch") {
+            const now = performance.now(), pt = local(e);
+            if (lastTap && now - lastTap.t < 320 && Math.hypot(pt[0] - lastTap.at[0], pt[1] - lastTap.at[1]) < 30) {
+              zoomAt(pt[0], pt[1], mapK * 2, 350);        // double-tap zooms in
+              lastTap = null;
+            } else {
+              lastTap = { t: now, at: pt };
+              // single tap: show the nearest place for a few seconds
+              hover = nearestPlace(e, 22);
+              clearTimeout(tapTimer);
+              tapTimer = setTimeout(() => { hover = -1; spot = null; }, 3000);
+            }
+          }
+          if (!pointers.size) press = null;
+          kick();
+        };
+        canvas.addEventListener("pointerup", release);
+        canvas.addEventListener("pointercancel", release);
         canvas.addEventListener("pointerleave", e => {
           if (view === "visited" && e.pointerType !== "touch" && hover >= 0) { hover = -1; spot = null; }
         });
-        const end = () => { dragging = null; };
-        canvas.addEventListener("pointerup", end);
-        canvas.addEventListener("pointercancel", end);
+
+        // Ctrl/⌘ + wheel (and trackpad pinch, which arrives as ctrl + wheel) zooms; plain wheel scrolls the page
+        canvas.addEventListener("wheel", e => {
+          if (!onMap()) return;
+          if (!e.ctrlKey && !e.metaKey) { showHint(); return; }
+          e.preventDefault();
+          const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+          const [mx, my] = local(e);
+          zoomAt(mx, my, mapK * Math.exp(Math.max(-0.7, Math.min(0.7, -dy * 0.004))));
+        }, { passive: false });
+
+        canvas.addEventListener("dblclick", e => {
+          if (!onMap()) return;
+          const [mx, my] = local(e);
+          zoomAt(mx, my, e.shiftKey ? mapK / 2 : mapK * 2, 350);
+        });
       }
 
       // ----- loop -----
@@ -1485,7 +1682,7 @@
         step(now);
         draw(now);
         last = now;
-        if (!still || tween || dragging || flatTween) raf = requestAnimationFrame(frame);
+        if (!still || tween || dragging || flatTween || mapAnim) raf = requestAnimationFrame(frame);
       }
       function kick() {
         if (!raf && visible && projection) { last = performance.now(); raf = requestAnimationFrame(frame); }
