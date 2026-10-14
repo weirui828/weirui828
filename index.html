@@ -442,7 +442,7 @@
       padding: 28px;
       box-shadow: var(--glow);
     }
-    .dp-eyebrow, .dp-kicker {
+    .dp-kicker {
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.08em;
@@ -457,24 +457,6 @@
       line-height: 1.1;
     }
     .dp-lede { margin-top: 10px; color: var(--muted); }
-    .dp-cta {
-      margin-top: 16px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 14px;
-    }
-    .dp-btn {
-      padding: 7px 14px;
-      border: 1px solid rgba(167, 139, 250, .5);
-      border-radius: 999px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--violet);
-      text-decoration: none;
-      transition: background .2s ease;
-    }
-    .dp-btn:hover, .dp-btn:focus-visible { background: rgba(167, 139, 250, .14); outline: none; }
 
     .dp-block { padding: 24px; }
     .dp-kicker span { margin-right: 10px; color: var(--faint); }
@@ -622,26 +604,6 @@
       background: linear-gradient(90deg, var(--violet), var(--rose));
     }
     .dp-traits .fx { color: var(--muted); }
-
-    /* Engineering facts */
-    .dp-facts {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 18px 22px;
-    }
-    .dp-facts h5 { font-size: 0.9375rem; font-weight: 600; }
-    .dp-facts h5::before {
-      content: "";
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      margin: 0 8px 2px 0;
-      border-radius: 50%;
-      background: var(--violet);
-      box-shadow: 0 0 8px var(--violet);
-    }
-    .dp-facts p { margin-top: 4px; font-size: 0.8125rem; color: var(--muted); }
 
     @media (max-width: 600px) {
       .dp-hero { padding: 22px; }
@@ -948,12 +910,8 @@
       <article class="dp">
         <header class="glass dp-hero">
           <div class="dp-intro">
-            <p class="dp-eyebrow">Open source · self-hosted</p>
             <h3>Dream Pet</h3>
             <p class="dp-lede">An AI pet with an inner life. Your pet gets bored, wanders off to read the web about whatever it's curious about, and at night turns what it read into a dream, every scene traceable to a page it really read.</p>
-            <div class="dp-cta">
-              <a class="dp-btn" href="https://github.com/weirui828/dream-pet" target="_blank" rel="noopener">Source on GitHub →</a>
-            </div>
           </div>
         </header>
 
@@ -1037,7 +995,6 @@
               <li><b>5</b> scenes</li>
               <li><b>241</b> words</li>
               <li><b>100%</b> scenes cite memories</li>
-              <li><b>3</b>-word longest copied run</li>
               <li><b>0.95</b> critic's score</li>
             </ul>
           </div>
@@ -1063,7 +1020,7 @@
         <div class="glass dp-block">
           <p class="dp-kicker"><span>04</span>Personality</p>
           <h4>Personality is wiring, not a vibe</h4>
-          <p>Each trait turns specific dials in the drives above. Every night the pet may nudge its own traits by up to 3 points, and it has to cite what it read to do it. Here's how Pip is set up:</p>
+          <p>Each pet comes with its own personality, and every trait shapes how it behaves. It even shifts a little each night, based on what it read. Here's how Pip is set up:</p>
           <ul class="dp-traits">
             <li><span class="t">restlessness</span><span class="bar" style="--v: 70"></span><span class="fx">boredom grows 1.39× faster</span></li>
             <li><span class="t">openness</span><span class="bar" style="--v: 85"></span><span class="fx">16% chance of a wildcard topic</span></li>
@@ -1072,19 +1029,6 @@
             <li><span class="t">stamina</span><span class="bar" style="--v: 70"></span><span class="fx">120 energy, 17.4 an hour back asleep</span></li>
             <li><span class="t">dreaminess</span><span class="bar" style="--v: 60"></span><span class="fx">dreams at temperature 0.9, 3 hops wide</span></li>
           </ul>
-        </div>
-
-        <div class="glass dp-block">
-          <p class="dp-kicker"><span>05</span>Engineering</p>
-          <h4>Whimsical on the outside, strict on the inside</h4>
-          <div class="dp-facts">
-            <div><h5>Code decides, models answer</h5><p>A scheduler ticks every 10 minutes and never calls a model. Each behaviour is a LangGraph graph whose model steps fill a schema and can't call tools.</p></div>
-            <div><h5>$2 a day, enforced in code</h5><p>Every call is priced before it's made and refused if it would break the cap. Runs on a local Gemma 12B with Qwen3 embeddings; only web search costs money.</p></div>
-            <div><h5>The web is untrusted</h5><p>Pages are cleaned, capped and quoted to the model as data, never instructions. It respects robots.txt and gets a safety check before anything becomes a memory.</p></div>
-            <div><h5>Memories fade, never vanish</h5><p>Recall favours recent memories. Unused ones weaken ×0.92 a night and get archived, never deleted. Anything a dream used stops fading.</p></div>
-            <div><h5>Lives through a closed laptop</h5><p>When the machine wakes, the pet replays the nights it missed at their real times: bedtime, dream, wake-up.</p></div>
-            <div><h5>Reproducible on a fake clock</h5><p>The same graphs run on a simulated clock with recorded or fake models, so runs are fast and repeatable.</p></div>
-          </div>
         </div>
       </article>
     </section>
