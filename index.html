@@ -269,6 +269,7 @@
 
     .section-head {
       display: flex;
+      flex-wrap: wrap;
       justify-content: flex-end;
       align-items: baseline;
       gap: 16px;
@@ -421,21 +422,27 @@
     /* Journey: animated globe of the cities I've lived in */
     .globe-wrap {
       position: relative;
-      width: min(100%, 560px);
-      margin: 0 auto;
-      aspect-ratio: 1;
+      width: 100%;
+      aspect-ratio: 3 / 2;
     }
+    @media (max-width: 600px) {
+      .globe-wrap { aspect-ratio: 1; }
+    }
+    /* The flat map is twice as wide as it is tall */
+    .globe-wrap.map { aspect-ratio: 2 / 1; }
+    #journey .section-head { justify-content: flex-start; }
     #globe {
       width: 100%;
       height: 100%;
       display: block;
       /* Round viewport: zoomed-in views fade out at the circle instead of showing square edges */
-      -webkit-mask-image: radial-gradient(closest-side, #000 90%, transparent 100%);
-      mask-image: radial-gradient(closest-side, #000 90%, transparent 100%);
+      -webkit-mask-image: radial-gradient(circle closest-side, #000 90%, transparent 100%);
+      mask-image: radial-gradient(circle closest-side, #000 90%, transparent 100%);
       cursor: grab;
       touch-action: pan-y;
     }
     #globe:active { cursor: grabbing; }
+    #globe.flat { -webkit-mask-image: none; mask-image: none; cursor: default; }
     .globe-status {
       position: absolute;
       inset: 0;
@@ -444,6 +451,31 @@
       color: var(--faint);
       font-size: 0.875rem;
       pointer-events: none;
+    }
+    .view-toggle {
+      display: inline-flex;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--glass);
+      align-self: center;
+    }
+    .view-toggle button {
+      padding: 4px 12px;
+      border: 0;
+      border-radius: 999px;
+      background: none;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .view-toggle button:hover { color: var(--text); }
+    .view-toggle button[aria-pressed="true"] {
+      background: var(--glass-hover);
+      color: var(--text);
+      box-shadow: inset 0 0 0 1px rgba(167, 139, 250, .45);
     }
     .journey-sub {
       margin-right: auto;
@@ -503,6 +535,25 @@
     }
     .stops .next .tag { color: var(--gold); }
     .stops .region { color: var(--faint); }
+    .map-legend {
+      list-style: none;
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 0.8125rem;
+      color: var(--muted);
+    }
+    .map-legend li { display: inline-flex; align-items: center; gap: 8px; }
+    .map-legend i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--c);
+      box-shadow: 0 0 8px var(--c);
+    }
+    .map-legend i.ring { background: none; border: 1.5px solid var(--c); }
+    .stops[hidden], .map-legend[hidden] { display: none; }
     @media (max-width: 600px) {
       .stops .region { display: none; }
     }
@@ -629,7 +680,11 @@
 
     <section id="journey" role="tabpanel" aria-labelledby="tab-journey" hidden>
       <div class="section-head">
-        <p class="journey-sub">The places I've called home</p>
+        <div class="view-toggle" role="group" aria-label="Map view">
+          <button type="button" data-view="lived" aria-pressed="true">Lived</button>
+          <button type="button" data-view="visited" aria-pressed="false">Visited</button>
+        </div>
+        <p class="journey-sub" id="journey-sub">The places I've called home</p>
         <button class="replay" type="button" id="replay">Replay ↺</button>
       </div>
       <div class="globe-wrap">
@@ -637,6 +692,11 @@
         <div class="globe-status" id="globe-status">Loading the globe…</div>
       </div>
       <ol class="stops" id="stops"></ol>
+      <ul class="map-legend" id="map-legend" hidden>
+        <li><i style="--c: #fcd34d"></i>Visited</li>
+        <li><i style="--c: #22d3ee"></i>Lived</li>
+        <li><i class="ring" style="--c: #a78bfa"></i>Next</li>
+      </ul>
     </section>
 
       </main>
@@ -750,41 +810,161 @@
 
     // ---------- Journey: a globe that flies through every city I've lived in ----------
     const journey = (() => {
+      // Places I've lived, in order. NOW is the current city; the leg after it is the future move.
       const CITIES = [
-        { name: "Suiping", region: "Henan, China", coord: [114.01, 33.15], tag: "Hometown" },
-        { name: "Zhuhai", region: "Guangdong, China", coord: [113.58, 22.27] },
-        { name: "Guangzhou", region: "Guangdong, China", coord: [113.26, 23.13] },
-        { name: "Fairfield", region: "Iowa, USA", coord: [-91.96, 41.01] },
-        { name: "New York City", region: "New York, USA", coord: [-74.01, 40.71] },
-        { name: "Stamford", region: "Connecticut, USA", coord: [-73.54, 41.05] },
-        { name: "Boston", region: "Massachusetts, USA", coord: [-71.06, 42.36] },
-        { name: "San Diego", region: "California, USA", coord: [-117.16, 32.72] },
-        { name: "San Francisco", region: "California, USA", coord: [-122.42, 37.77], tag: "Now" },
-        { name: "Sydney", region: "Australia", coord: [151.21, -33.87], tag: "Next" },
+        { name: "Suiping", region: "Henan, China", country: "China", coord: [114.01, 33.15], tag: "Hometown" },
+        { name: "Zhuhai", region: "Guangdong, China", country: "China", coord: [113.58, 22.27] },
+        { name: "Guangzhou", region: "Guangdong, China", country: "China", coord: [113.26, 23.13] },
+        { name: "Fairfield", region: "Iowa, USA", country: "USA", coord: [-91.96, 41.01] },
+        { name: "New York City", region: "New York, USA", country: "USA", coord: [-74.01, 40.71] },
+        { name: "Stamford", region: "Connecticut, USA", country: "USA", coord: [-73.54, 41.05] },
+        { name: "Boston", region: "Massachusetts, USA", country: "USA", coord: [-71.06, 42.36] },
+        { name: "San Diego", region: "California, USA", country: "USA", coord: [-117.16, 32.72] },
+        { name: "San Francisco", region: "California, USA", country: "USA", coord: [-122.42, 37.77], tag: "Now" },
+        { name: "Sydney", region: "Australia", country: "Australia", coord: [151.21, -33.87], tag: "Next" },
       ];
       const LEGS = CITIES.length - 1;
-      const NOW = 8;                      // index of the current city; the leg after it is the future move
+      const NOW = 8;
+
+      // Places I've visited: [name, region, country, [lon, lat], ski trip?]
+      const VISITED = [
+        ["Shenzhen", "China", "China", [114.06, 22.54]],
+        ["Hong Kong", "Hong Kong", "Hong Kong", [114.17, 22.32]],
+        ["Chongqing", "China", "China", [106.55, 29.56]],
+        ["Guilin", "China", "China", [110.29, 25.27]],
+        ["Guiyang", "China", "China", [106.63, 26.65]],
+        ["Beijing", "China", "China", [116.40, 39.90]],
+        ["Nanchang", "China", "China", [115.86, 28.68]],
+        ["Wuhan", "China", "China", [114.31, 30.59]],
+        ["Huizhou", "China", "China", [114.42, 23.11]],
+        ["Sanya", "China", "China", [109.51, 18.25]],
+        ["Haikou", "China", "China", [110.33, 20.04]],
+        ["Philadelphia", "PA", "USA", [-75.17, 39.95]],
+        ["Washington, D.C.", "USA", "USA", [-77.04, 38.91]],
+        ["Baltimore", "MD", "USA", [-76.61, 39.29]],
+        ["Miami", "FL", "USA", [-80.19, 25.76]],
+        ["Key West", "FL", "USA", [-81.78, 24.56]],
+        ["Dry Tortugas National Park", "FL", "USA", [-82.87, 24.63]],
+        ["Everglades National Park", "FL", "USA", [-80.90, 25.29]],
+        ["Fort Lauderdale", "FL", "USA", [-80.14, 26.12]],
+        ["Fort Myers", "FL", "USA", [-81.87, 26.64]],
+        ["Naples", "FL", "USA", [-81.79, 26.14]],
+        ["Yosemite National Park", "CA", "USA", [-119.54, 37.87]],
+        ["Portland", "OR", "USA", [-122.68, 45.52]],
+        ["Seattle", "WA", "USA", [-122.33, 47.61]],
+        ["Iowa City", "IA", "USA", [-91.53, 41.66]],
+        ["Ottumwa", "IA", "USA", [-92.41, 41.02]],
+        ["Davenport", "IA", "USA", [-90.58, 41.52]],
+        ["Denver", "CO", "USA", [-104.99, 39.74]],
+        ["Boulder", "CO", "USA", [-105.27, 40.01]],
+        ["Colorado Springs", "CO", "USA", [-104.82, 38.83]],
+        ["Rocky Mountain National Park", "CO", "USA", [-105.68, 40.34]],
+        ["Aspen", "CO", "USA", [-106.82, 39.19]],
+        ["New Haven", "CT", "USA", [-72.93, 41.31]],
+        ["Hartford", "CT", "USA", [-72.68, 41.76]],
+        ["New London", "CT", "USA", [-72.10, 41.36]],
+        ["Atlantic City", "NJ", "USA", [-74.42, 39.36]],
+        ["Columbus", "OH", "USA", [-83.00, 39.96]],
+        ["Chicago", "IL", "USA", [-87.63, 41.88]],
+        ["Buffalo", "NY", "USA", [-78.88, 42.89]],
+        ["Niagara Falls", "NY", "USA", [-79.04, 43.09]],
+        ["Long Island", "NY", "USA", [-73.10, 40.79]],
+        ["Las Vegas", "NV", "USA", [-115.14, 36.17]],
+        ["Hoover Dam", "NV/AZ", "USA", [-114.74, 36.02]],
+        ["Los Angeles", "CA", "USA", [-118.24, 34.05]],
+        ["Malibu", "CA", "USA", [-118.78, 34.03]],
+        ["Palm Springs", "CA", "USA", [-116.55, 33.83]],
+        ["Santa Cruz", "CA", "USA", [-122.03, 36.97]],
+        ["Monterey", "CA", "USA", [-121.89, 36.60]],
+        ["San Jose", "CA", "USA", [-121.89, 37.34]],
+        ["Sacramento", "CA", "USA", [-121.49, 38.58]],
+        ["Lake Tahoe", "CA/NV", "USA", [-120.04, 39.10]],
+        ["Mount Shasta", "CA", "USA", [-122.31, 41.31]],
+        ["Redding", "CA", "USA", [-122.39, 40.59]],
+        ["Guerneville", "CA", "USA", [-123.00, 38.50]],
+        ["Sedona", "AZ", "USA", [-111.76, 34.87]],
+        ["Phoenix", "AZ", "USA", [-112.07, 33.45]],
+        ["Flagstaff", "AZ", "USA", [-111.65, 35.20]],
+        ["Grand Canyon", "AZ", "USA", [-112.11, 36.06]],
+        ["Page · Antelope Canyon & Horseshoe Bend", "AZ", "USA", [-111.46, 36.91]],
+        ["Bryce Canyon National Park", "UT", "USA", [-112.17, 37.59]],
+        ["Zion National Park", "UT", "USA", [-113.03, 37.30]],
+        ["St. George", "UT", "USA", [-113.58, 37.10]],
+        ["New Orleans", "LA", "USA", [-90.07, 29.95]],
+        ["Austin", "TX", "USA", [-97.74, 30.27]],
+        ["Newport", "RI", "USA", [-71.31, 41.49]],
+        ["Providence", "RI", "USA", [-71.41, 41.82]],
+        ["Brattleboro", "VT", "USA", [-72.56, 42.85]],
+        ["Stratton", "VT", "USA", [-72.91, 43.11], true],
+        ["Mount Snow", "VT", "USA", [-72.92, 42.96], true],
+        ["Sunday River", "ME", "USA", [-70.86, 44.47], true],
+        ["Sugarloaf", "ME", "USA", [-70.31, 45.03], true],
+        ["Bretton Woods", "NH", "USA", [-71.44, 44.26], true],
+        ["Wildcat Mountain", "NH", "USA", [-71.24, 44.26], true],
+        ["Camelback Mountain", "PA", "USA", [-75.36, 41.05], true],
+        ["Blue Mountain", "PA", "USA", [-75.52, 40.82], true],
+        ["Manchester", "NH", "USA", [-71.46, 42.99]],
+        ["Portland", "ME", "USA", [-70.26, 43.66]],
+        ["Provincetown", "MA", "USA", [-70.19, 42.05]],
+        ["Salem", "MA", "USA", [-70.90, 42.52]],
+        ["Vancouver", "Canada", "Canada", [-123.12, 49.28]],
+        ["Puerto Vallarta", "Mexico", "Mexico", [-105.23, 20.65]],
+        ["Nassau", "The Bahamas", "The Bahamas", [-77.35, 25.05]],
+        ["Naples", "Italy", "Italy", [14.27, 40.85]],
+        ["Pompeii", "Italy", "Italy", [14.49, 40.75]],
+        ["Catania", "Sicily, Italy", "Italy", [15.09, 37.50]],
+        ["Valletta", "Malta", "Malta", [14.51, 35.90]],
+        ["Bodrum", "Turkey", "Turkey", [27.43, 37.03]],
+        ["Barcelona", "Spain", "Spain", [2.17, 41.39]],
+        ["Palma de Mallorca", "Spain", "Spain", [2.65, 39.57]],
+        ["Athens", "Greece", "Greece", [23.73, 37.98]],
+        ["Mykonos", "Greece", "Greece", [25.33, 37.45]],
+        ["Wollongong", "Australia", "Australia", [150.89, -34.43]],
+      ].map(([name, region, country, coord, ski]) => ({ name, region, country, coord, ski: !!ski }));
+
+      // Everything shown on the flat map: visited (gold), lived (cyan), and the next move (violet ring)
+      const PLACES = [
+        ...VISITED.map(p => ({ ...p, kind: "visited" })),
+        ...CITIES.map((c, i) => ({ ...c, kind: i === NOW + 1 ? "next" : "lived" })),
+      ];
+      const been = [...VISITED, ...CITIES.slice(0, NOW + 1)];
+      const STATS = `${been.length} places · ${new Set(been.map(p => p.country)).size} countries & regions`;
+
       const LIBS = [
         "https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js",
         "https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js",
       ];
       const ATLAS = "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json";
       const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const FLAT_ROT = [-15, 0];          // flat map centred on 15°E keeps the Americas left and Asia/Australia right
+      const SPOT_MS = 3200;               // how long each random spotlight lasts
 
       const canvas = document.getElementById("globe");
       const ctx = canvas.getContext("2d");
       const status = document.getElementById("globe-status");
       const stopsEl = document.getElementById("stops");
+      const legendEl = document.getElementById("map-legend");
+      const subEl = document.getElementById("journey-sub");
+      const replayEl = document.getElementById("replay");
+      const viewBtns = [...document.querySelectorAll("[data-view]")];
+      const LABELS = {
+        lived: canvas.getAttribute("aria-label"),
+        visited: `A world map of ${STATS}: ${VISITED.map(p => p.name).join(", ")}.`,
+      };
 
       let ready = null, visible = false, raf = 0, last = 0;
-      let projection, path, land, dots = [], size = 0, radius = 0;
+      let morph, projection, path, land, dots = [], W = 0, H = 0, radius = 0;
       // Camera: rotation [λ, φ] and zoom (1 = whole globe fits)
       let cam = { rot: [-CITIES[0].coord[0], -CITIES[0].coord[1]], zoom: 3 };
       let tween = null;                   // { from, to, start, dur }
       // Story state: which leg is playing and in which phase
       let leg = 0, phase = "fly", phaseStart = 0, progress = 0;
-      let mode = still ? "done" : "story"; // "story" | "done" | "focus"
-      let dragging = null;
+      let mode = still ? "done" : "story"; // "story" | "done" | "focus" | "map"
+      let dragging = null, focused = -1;
+      // Globe ↔ flat map: flat runs 0 (sphere) → 1 (flat map)
+      let view = "lived", flat = 0, flatTween = null;
+      // Visited map: the random spotlight and the place under the pointer
+      let spot = null, bag = [], hover = -1, tapTimer = 0;
 
       // Legend chips double as the accessible list of places
       const chips = CITIES.map((c, i) => {
@@ -814,47 +994,55 @@
         land = topojson.feature(world, world.objects.land);
 
         // Rasterise land once onto a small equirectangular canvas, then sample it into a dot grid
-        const W = 720, H = 360;
+        const RW = 720, RH = 360;
         const off = document.createElement("canvas");
-        off.width = W; off.height = H;
+        off.width = RW; off.height = RH;
         const octx = off.getContext("2d", { willReadFrequently: true });
-        const eq = d3.geoEquirectangular().scale(W / (2 * Math.PI)).translate([W / 2, H / 2]);
+        const eq = d3.geoEquirectangular().scale(RW / (2 * Math.PI)).translate([RW / 2, RH / 2]);
         octx.fillStyle = "#000";
         octx.beginPath();
         d3.geoPath(eq, octx)(land);
         octx.fill();
-        const px = octx.getImageData(0, 0, W, H).data;
+        const px = octx.getImageData(0, 0, RW, RH).data;
         for (let lat = -58; lat <= 80; lat += 1.6) {
           const step = 1.6 / Math.cos(lat * Math.PI / 180);
           for (let lon = -180; lon < 180; lon += step) {
             const [x, y] = eq([lon, lat]);
-            if (px[(Math.floor(y) * W + Math.floor(x)) * 4 + 3] > 128) dots.push([lon, lat]);
+            if (px[(Math.floor(y) * RW + Math.floor(x)) * 4 + 3] > 128) dots.push([lon, lat]);
           }
         }
 
-        projection = d3.geoOrthographic().clipAngle(90).precision(0.3);
+        // One projection that blends orthographic (globe) into equirectangular (flat map)
+        morph = d3.geoProjectionMutator(t => (x, y) => {
+          const a = d3.geoOrthographicRaw(x, y), b = d3.geoEquirectangularRaw(x, y);
+          return [a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])];
+        });
+        projection = morph(0).clipAngle(90).precision(0.3);
         path = d3.geoPath(projection, ctx);
         new ResizeObserver(resize).observe(canvas);
         resize();
-        bindDrag();
+        bindPointer();
         status.remove();
-        restart();
+        if (view === "visited") enterMap(performance.now(), true);
+        else restart();
       }
 
       function resize() {
         const dpr = Math.min(devicePixelRatio || 1, 2);
-        size = canvas.clientWidth;
-        if (!size) return;
-        canvas.width = canvas.height = Math.round(size * dpr);
+        W = canvas.clientWidth;
+        H = canvas.clientHeight;
+        if (!W || !H) return;
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        radius = size * 0.42;
-        projection.translate([size / 2, size / 2]);
+        radius = Math.min(W, H) * 0.42;
         kick();
       }
 
       // ----- camera helpers -----
       const wrap = a => ((a + 540) % 360) - 180;
       const ease = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+      const lerp = (a, b, t) => a + (b - a) * t;
 
       function flyTo(rot, zoom, dur, now) {
         const to = { rot: [cam.rot[0] + wrap(rot[0] - cam.rot[0]), rot[1]], zoom };
@@ -903,7 +1091,56 @@
         focused = i;
         kick();
       }
-      let focused = -1;
+
+      // ----- globe ↔ flat map -----
+      function enterMap(now, instant = false) {
+        mode = "map";
+        focused = -1;
+        spot = null;
+        if (instant || still) {
+          cam = { rot: [...FLAT_ROT], zoom: 1 };
+          tween = null;
+          flat = 1;
+          flatTween = null;
+        } else {
+          // zoom out to the whole globe first, then unroll it
+          flyTo(FLAT_ROT, 1, 700, now);
+          flatTween = { from: flat, to: 1, start: now + 700, dur: 1500, done: null };
+        }
+        kick();
+      }
+      function leaveMap(now) {
+        hover = -1;
+        spot = null;
+        if (still) { flat = 0; flatTween = null; restart(); return; }
+        flatTween = { from: flat, to: 0, start: now, dur: 1500, done: restart };
+        kick();
+      }
+      function setView(v) {
+        if (v === view) return;
+        view = v;
+        viewBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.view === v));
+        const map = v === "visited";
+        subEl.textContent = map ? STATS : "The places I've called home";
+        replayEl.hidden = map;
+        stopsEl.hidden = map;
+        legendEl.hidden = !map;
+        canvas.setAttribute("aria-label", LABELS[v]);
+        canvas.parentElement.classList.toggle("map", map);
+        if (!projection) return;          // init() picks the view up once loaded
+        if (map) enterMap(performance.now());
+        else leaveMap(performance.now());
+      }
+      viewBtns.forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
+
+      // Shuffle-bag so every visited place gets a turn before any repeats
+      function nextSpot(now) {
+        if (!bag.length) {
+          bag = d3.shuffle(d3.range(VISITED.length));
+          if (spot && bag[bag.length - 1] === spot.i) bag.reverse();
+        }
+        spot = { i: bag.pop(), start: now };
+      }
 
       function step(now) {
         if (tween) {
@@ -915,6 +1152,22 @@
             zoom: Math.exp(Math.log(tween.from.zoom) + (Math.log(tween.to.zoom) - Math.log(tween.from.zoom)) * k),
           };
           if (t === 1) tween = null;
+        }
+        if (flatTween && now >= flatTween.start) {
+          const t = Math.min(1, (now - flatTween.start) / flatTween.dur);
+          flat = lerp(flatTween.from, flatTween.to, ease(t));
+          if (t === 1) {
+            const done = flatTween.done;
+            flatTween = null;
+            done?.();
+          }
+        }
+        // The round mask only suits the globe; drop it once the map starts to unroll
+        canvas.classList.toggle("flat", flat > 0);
+
+        if (mode === "map") {
+          if (flat === 1 && hover < 0 && !still && (!spot || now - spot.start > SPOT_MS)) nextSpot(now);
+          return;
         }
         if (mode !== "story") {
           // Gentle idle spin once the story is over (not while a city is focused or being dragged)
@@ -945,45 +1198,69 @@
         return d3.range(n + 1).map(k => interp((k / n) * upTo));
       }
 
-      function draw(now) {
-        projection.rotate(cam.rot).scale(radius * cam.zoom);
-        const center = [-cam.rot[0], -cam.rot[1]];
-        ctx.clearRect(0, 0, size, size);
+      // Flat-map scale and vertical offset: fit the width, centre on the dotted latitudes (−58° to 80°)
+      const flatScale = () => Math.min(W * 0.48 / Math.PI, H * 0.95 / (138 * Math.PI / 180));
+      const FLAT_MID = 11 * Math.PI / 180;
 
-        // Atmosphere glow and the dark ocean sphere
+      function draw(now) {
+        const s1 = flatScale();
+        const s = lerp(radius * cam.zoom, s1, flat);
+        morph(flat);
+        projection
+          .rotate(cam.rot)
+          .scale(s)
+          .translate([W / 2, lerp(H / 2, H / 2 + FLAT_MID * s1, flat)])
+          .clipAngle(flat > 0.999 ? null : 90 + 89 * flat);
+        const center = [-cam.rot[0], -cam.rot[1]];
+        const reach = flat > 0.999 ? Infinity : (Math.PI / 2) * (1 + flat * 0.99);
+        ctx.clearRect(0, 0, W, H);
+
+        // Atmosphere glow (fades as the globe flattens) and the dark ocean
         const [cx, cy] = projection.translate();
         const r = radius * cam.zoom;
-        const halo = ctx.createRadialGradient(cx, cy, r * 0.9, cx, cy, r * 1.12);
-        halo.addColorStop(0, "rgba(124, 58, 237, .35)");
-        halo.addColorStop(1, "rgba(124, 58, 237, 0)");
-        ctx.fillStyle = halo;
-        ctx.beginPath(); ctx.arc(cx, cy, r * 1.12, 0, Math.PI * 2); ctx.fill();
-        const ocean = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.35, r * 0.1, cx, cy, r);
+        if (flat < 1) {
+          const halo = ctx.createRadialGradient(cx, cy, r * 0.9, cx, cy, r * 1.12);
+          halo.addColorStop(0, `rgba(124, 58, 237, ${0.35 * (1 - flat)})`);
+          halo.addColorStop(1, "rgba(124, 58, 237, 0)");
+          ctx.fillStyle = halo;
+          ctx.beginPath(); ctx.arc(cx, cy, r * 1.12, 0, Math.PI * 2); ctx.fill();
+        }
+        const or = lerp(r, s1 * Math.PI, flat);
+        const ocean = ctx.createRadialGradient(cx - or * 0.35, cy - or * 0.35, or * 0.1, cx, cy, or);
         ocean.addColorStop(0, "#141a3d");
         ocean.addColorStop(1, "#070a1c");
+        // The ocean outline is awkward mid-unroll, so it fades out and back in
+        ctx.globalAlpha = Math.abs(1 - 2 * flat);
         ctx.fillStyle = ocean;
         ctx.beginPath(); path({ type: "Sphere" }); ctx.fill();
-        ctx.strokeStyle = "rgba(167, 139, 250, .25)";
+        ctx.strokeStyle = `rgba(167, 139, 250, ${0.25 * (1 - flat)})`;   // outline only on the globe
         ctx.lineWidth = 1;
         ctx.stroke();
+        ctx.globalAlpha = 1;
 
         // Faint filled land underneath, so close-up views still show the coastline
         ctx.fillStyle = "rgba(154, 166, 255, .07)";
         ctx.beginPath(); path(land); ctx.fill();
 
-        // Land as dots, dimmer towards the limb for depth
-        const dotR = Math.max(0.9, Math.min(2.2, 0.0045 * r));
+        // Land as dots, dimmer towards the limb for depth (even across the flat map)
+        const dotR = lerp(Math.max(0.9, Math.min(2.2, 0.0045 * r)), Math.max(1, W / 620), flat);
         for (const dpt of dots) {
           const dist = d3.geoDistance(dpt, center);
-          if (dist > Math.PI / 2) continue;
+          if (dist > reach) continue;
           const [x, y] = projection(dpt);
-          if (x < -4 || y < -4 || x > size + 4 || y > size + 4) continue;
-          ctx.globalAlpha = 0.25 + 0.6 * Math.cos(dist);
+          if (x < -4 || y < -4 || x > W + 4 || y > H + 4) continue;
+          ctx.globalAlpha = 0.25 + 0.6 * lerp(Math.max(0, Math.cos(dist)), 0.7, flat);
           ctx.fillStyle = "#9aa6ff";
           ctx.fillRect(x - dotR / 2, y - dotR / 2, dotR, dotR);
         }
         ctx.globalAlpha = 1;
 
+        // Halfway through the unroll, the lived story hands over to the visited map
+        if (flat < 0.5) drawLived(now, center, reach);
+        else drawVisited(now, (flat - 0.5) * 2);
+      }
+
+      function drawLived(now, center, reach) {
         // Arcs: done legs in full, the current leg growing
         const legsDone = mode === "story" ? leg + (phase === "arrive" ? 1 : 0) : LEGS;
         for (let i = 0; i < LEGS; i++) {
@@ -1003,7 +1280,7 @@
         order.forEach(i => {
           const c = CITIES[i];
           if (i > reached) return;
-          if (d3.geoDistance(c.coord, center) > Math.PI / 2 - 0.02) return;
+          if (d3.geoDistance(c.coord, center) > reach - 0.02) return;
           const [x, y] = projection(c.coord);
           const isNext = i === NOW + 1, isNow = i === NOW;
           const color = isNext ? "#fbbf24" : isNow ? "#22d3ee" : "#e8ebff";
@@ -1022,26 +1299,86 @@
           ctx.shadowBlur = 10;
           ctx.beginPath(); ctx.arc(x, y, i === focused && mode === "focus" ? 5 : 3.5, 0, Math.PI * 2); ctx.fill();
           ctx.shadowBlur = 0;
-
-          // Label to the right of the dot, else to the left, else skip if both would overlap another label
-          ctx.font = '600 12px "Space Grotesk", sans-serif';
-          ctx.textBaseline = "middle";
-          const w = ctx.measureText(c.name).width + 16;
-          const boxes = [{ x0: x + 6, side: "right" }, { x0: x - 6 - w, side: "left" }]
-            .map(b => ({ ...b, x1: b.x0 + w, y0: y - 10, y1: y + 10 }))
-            .filter(b => b.x0 > 0 && b.x1 < size);
-          const hit = b => placed.some(p => b.x0 < p.x1 && b.x1 > p.x0 && b.y0 < p.y1 && b.y1 > p.y0);
-          const box = boxes.find(b => !hit(b));
-          if (!box) return;
-          placed.push(box);
-          ctx.fillStyle = "rgba(5, 6, 15, .75)";
-          ctx.beginPath();
-          ctx.roundRect?.(box.x0, box.y0, w, 20, 10);
-          ctx.fill();
-          ctx.fillStyle = color;
-          ctx.textAlign = "left";
-          ctx.fillText(c.name, box.x0 + 8, y);
+          drawLabel(c.name, x, y, color, placed);
         });
+      }
+
+      // Label to the right of the dot, else to the left, else skip if both would overlap another label
+      function drawLabel(text, x, y, color, placed = [], alpha = 1) {
+        ctx.font = '600 12px "Space Grotesk", sans-serif';
+        ctx.textBaseline = "middle";
+        const w = ctx.measureText(text).width + 16;
+        const boxes = [{ x0: x + 8 }, { x0: x - 8 - w }]
+          .map(b => ({ ...b, x1: b.x0 + w, y0: y - 10, y1: y + 10 }))
+          .filter(b => b.x0 > 0 && b.x1 < W);
+        const hit = b => placed.some(p => b.x0 < p.x1 && b.x1 > p.x0 && b.y0 < p.y1 && b.y1 > p.y0);
+        const box = boxes.find(b => !hit(b));
+        if (!box) return;
+        placed.push(box);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = "rgba(5, 6, 15, .8)";
+        ctx.beginPath();
+        ctx.roundRect?.(box.x0, box.y0, w, 20, 10);
+        ctx.fill();
+        ctx.fillStyle = color;
+        ctx.textAlign = "left";
+        ctx.fillText(text, box.x0 + 8, y);
+        ctx.globalAlpha = 1;
+      }
+
+      const COLORS = { visited: "#fcd34d", lived: "#22d3ee", next: "#a78bfa" };
+      const placeLabel = p => `${p.name} · ${p.region}${p.ski ? " · ski trip" : ""}`;
+
+      function drawVisited(now, grow) {
+        // Every place as a small glowing dot; lived ones on top
+        const r0 = Math.max(1.6, W / 380) * grow;
+        for (const kind of ["visited", "lived", "next"]) {
+          for (const p of PLACES) {
+            if (p.kind !== kind) continue;
+            const [x, y] = projection(p.coord);
+            ctx.fillStyle = COLORS[kind];
+            ctx.shadowColor = COLORS[kind];
+            ctx.shadowBlur = 6;
+            ctx.beginPath();
+            if (kind === "next") {
+              ctx.strokeStyle = COLORS.next;
+              ctx.lineWidth = 1.5;
+              ctx.arc(x, y, r0 + 1.5, 0, Math.PI * 2);
+              ctx.stroke();
+            } else {
+              ctx.arc(x, y, kind === "lived" ? r0 + 0.6 : r0, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+        ctx.shadowBlur = 0;
+        if (grow < 1) return;
+
+        // Hovered place, or the random spotlight
+        let p, a = 1, t = 0;
+        if (hover >= 0) p = PLACES[hover];
+        else if (spot) {
+          p = VISITED[spot.i];
+          t = (now - spot.start) / SPOT_MS;
+          a = Math.min(1, t / 0.12, (1 - t) / 0.15);   // fade in, hold, fade out
+        }
+        if (!p || a <= 0) return;
+        const [x, y] = projection(p.coord);
+        const color = COLORS[p.kind || "visited"];
+        ctx.globalAlpha = a;
+        // pulsing ring + swollen glowing dot
+        const pulse = (now / 1100) % 1;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = a * (1 - pulse);
+        ctx.beginPath(); ctx.arc(x, y, 5 + pulse * 18, 0, Math.PI * 2); ctx.stroke();
+        ctx.globalAlpha = a;
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 18;
+        ctx.beginPath(); ctx.arc(x, y, r0 + 2.5, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        drawLabel(placeLabel(p), x, y, color, [], a);
       }
 
       function drawArc(i, upTo) {
@@ -1071,9 +1408,29 @@
         ctx.restore();
       }
 
-      // ----- drag to spin -----
-      function bindDrag() {
+      // ----- pointer: drag to spin the globe; hover/tap a place on the map -----
+      function nearestPlace(e, within) {
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+        let best = -1, bestD = within;
+        PLACES.forEach((p, i) => {
+          const [x, y] = projection(p.coord);
+          const d = Math.hypot(x - mx, y - my);
+          if (d < bestD) { bestD = d; best = i; }
+        });
+        return best;
+      }
+      function bindPointer() {
         canvas.addEventListener("pointerdown", e => {
+          if (view === "visited") {
+            if (e.pointerType !== "touch" || flat < 1) return;
+            // tap: show the nearest place for a few seconds
+            hover = nearestPlace(e, 22);
+            clearTimeout(tapTimer);
+            tapTimer = setTimeout(() => { hover = -1; spot = null; }, 3000);
+            kick();
+            return;
+          }
           if (e.pointerType === "touch") return;      // let touch scroll the page
           dragging = { x: e.clientX, y: e.clientY, rot: [...cam.rot] };
           tween = null;
@@ -1081,10 +1438,21 @@
           canvas.setPointerCapture(e.pointerId);
         });
         canvas.addEventListener("pointermove", e => {
+          if (view === "visited") {
+            if (e.pointerType === "touch" || flat < 1) return;
+            const h = nearestPlace(e, 12);
+            if (h !== hover) { hover = h; if (h < 0) spot = null; }
+            canvas.style.cursor = h >= 0 ? "pointer" : "default";
+            return;
+          }
+          canvas.style.cursor = "";
           if (!dragging) return;
           const k = 0.25 / cam.zoom;
           cam.rot = [dragging.rot[0] + (e.clientX - dragging.x) * k, Math.max(-80, Math.min(80, dragging.rot[1] - (e.clientY - dragging.y) * k))];
           kick();
+        });
+        canvas.addEventListener("pointerleave", e => {
+          if (view === "visited" && e.pointerType !== "touch" && hover >= 0) { hover = -1; spot = null; }
         });
         const end = () => { dragging = null; };
         canvas.addEventListener("pointerup", end);
@@ -1098,13 +1466,13 @@
         step(now);
         draw(now);
         last = now;
-        if (!still || tween || dragging) raf = requestAnimationFrame(frame);
+        if (!still || tween || dragging || flatTween) raf = requestAnimationFrame(frame);
       }
       function kick() {
         if (!raf && visible && projection) { last = performance.now(); raf = requestAnimationFrame(frame); }
       }
 
-      document.getElementById("replay").addEventListener("click", () => { focused = -1; if (projection) restart(); });
+      replayEl.addEventListener("click", () => { focused = -1; if (projection) restart(); });
 
       return {
         setVisible(on) {
