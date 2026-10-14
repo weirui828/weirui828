@@ -521,49 +521,6 @@
       cursor: pointer;
     }
     .replay:hover { text-decoration: underline; }
-    .stops {
-      list-style: none;
-      margin-top: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      counter-reset: stop;
-    }
-    .stops button {
-      display: inline-flex;
-      align-items: baseline;
-      gap: 6px;
-      padding: 6px 12px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--glass);
-      color: var(--muted);
-      font: inherit;
-      font-size: 0.8125rem;
-      cursor: pointer;
-      transition: color .2s ease, border-color .2s ease, box-shadow .2s ease, opacity .3s ease;
-    }
-    .stops button::before {
-      counter-increment: stop;
-      content: counter(stop);
-      font-family: "Space Grotesk", sans-serif;
-      font-weight: 600;
-      color: var(--faint);
-    }
-    .stops button:hover,
-    .stops button:focus-visible { color: var(--text); border-color: rgba(167, 139, 250, .5); outline: none; }
-    .stops button.reached { color: var(--text); }
-    .stops button.active { color: var(--text); box-shadow: var(--glow); }
-    .stops .tag {
-      font-size: 0.6875rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--cyan);
-    }
-    .stops .next .tag { color: var(--gold); }
-    .stops .region { color: var(--faint); }
     .map-legend {
       list-style: none;
       margin-top: 16px;
@@ -582,7 +539,7 @@
       box-shadow: 0 0 8px var(--c);
     }
     .map-legend i.ring { background: none; border: 1.5px solid var(--c); }
-    .stops[hidden], .map-legend[hidden], .map-zoom[hidden] { display: none; }
+    .map-legend[hidden], .map-zoom[hidden] { display: none; }
     .map-zoom {
       position: absolute;
       right: 10px;
@@ -621,9 +578,6 @@
       background: rgba(5, 6, 15, .85);
       font-size: 0.875rem;
       color: var(--text);
-    }
-    @media (max-width: 600px) {
-      .stops .region { display: none; }
     }
 
     footer {
@@ -765,7 +719,6 @@
           <button type="button" data-zoom="reset" aria-label="Reset zoom">⟲</button>
         </div>
       </div>
-      <ol class="stops" id="stops"></ol>
       <ul class="map-legend" id="map-legend" hidden>
         <li><i style="--c: #fcd34d"></i>Visited</li>
         <li><i style="--c: #22d3ee"></i>Lived</li>
@@ -886,7 +839,7 @@
     const journey = (() => {
       // Places I've lived, in order. NOW is the current city; the leg after it is the future move.
       const CITIES = [
-        { name: "Suiping", region: "Henan, China", country: "China", coord: [114.01, 33.15], tag: "Hometown" },
+        { name: "Suiping", region: "Henan, China", country: "China", coord: [114.01, 33.15] },
         { name: "Zhuhai", region: "Guangdong, China", country: "China", coord: [113.58, 22.27] },
         { name: "Guangzhou", region: "Guangdong, China", country: "China", coord: [113.26, 23.13] },
         { name: "Fairfield", region: "Iowa, USA", country: "USA", coord: [-91.96, 41.01] },
@@ -894,8 +847,8 @@
         { name: "Stamford", region: "Connecticut, USA", country: "USA", coord: [-73.54, 41.05] },
         { name: "Boston", region: "Massachusetts, USA", country: "USA", coord: [-71.06, 42.36] },
         { name: "San Diego", region: "California, USA", country: "USA", coord: [-117.16, 32.72] },
-        { name: "San Francisco", region: "California, USA", country: "USA", coord: [-122.42, 37.77], tag: "Now" },
-        { name: "Sydney", region: "Australia", country: "Australia", coord: [151.21, -33.87], tag: "Next" },
+        { name: "San Francisco", region: "California, USA", country: "USA", coord: [-122.42, 37.77] },
+        { name: "Sydney", region: "Australia", country: "Australia", coord: [151.21, -33.87] },
       ];
       const LEGS = CITIES.length - 1;
       const NOW = 8;
@@ -1035,7 +988,6 @@
       const canvas = document.getElementById("globe");
       const ctx = canvas.getContext("2d");
       const status = document.getElementById("globe-status");
-      const stopsEl = document.getElementById("stops");
       const legendEl = document.getElementById("map-legend");
       const subEl = document.getElementById("journey-sub");
       const replayEl = document.getElementById("replay");
@@ -1052,8 +1004,8 @@
       let tween = null;                   // { from, to, start, dur }
       // Story state: which leg is playing and in which phase
       let leg = 0, phase = "fly", phaseStart = 0, progress = 0;
-      let mode = still ? "done" : "story"; // "story" | "done" | "focus" | "map"
-      let dragging = null, focused = -1;
+      let mode = still ? "done" : "story"; // "story" | "done" | "map"
+      let dragging = null;
       // Globe ↔ flat map: flat runs 0 (sphere) → 1 (flat map)
       let view = "lived", flat = 0, flatTween = null;
       // Visited map: the random spotlight and the place under the pointer
@@ -1065,20 +1017,6 @@
       const zoomEl = document.getElementById("map-zoom");
       const hintEl = document.getElementById("map-hint");
       let hintTimer = 0;
-
-      // Legend chips double as the accessible list of places
-      const chips = CITIES.map((c, i) => {
-        const li = document.createElement("li");
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = i === NOW + 1 ? "next" : "";
-        b.innerHTML = `<span>${c.name}<span class="region"> · ${c.region}</span></span>`;
-        if (c.tag) b.insertAdjacentHTML("beforeend", `<span class="tag">${c.tag}</span>`);
-        b.addEventListener("click", () => focusCity(i));
-        li.append(b);
-        stopsEl.append(li);
-        return b;
-      });
 
       const loadScript = src => new Promise((resolve, reject) => {
         const el = document.createElement("script");
@@ -1159,12 +1097,10 @@
 
       // ----- story -----
       function restart() {
-        chips.forEach(c => c.classList.remove("reached", "active"));
         if (still) { mode = "done"; showDone(performance.now(), 0); return; }
         mode = "story";
         leg = 0;
         startPhase("fly", performance.now());
-        chips[0].classList.add("reached", "active");
         kick();
       }
       function startPhase(p, now) {
@@ -1176,27 +1112,14 @@
         }
       }
       function showDone(now, dur) {
-        chips.forEach(c => c.classList.add("reached"));
-        chips.forEach(c => c.classList.remove("active"));
-        chips[NOW].classList.add("active");
         flyTo([-175, -5], 1, dur, now);
         if (!dur) { cam = { ...tween.to }; tween = null; }
-        kick();
-      }
-      function focusCity(i) {
-        const now = performance.now();
-        mode = "focus";
-        chips.forEach((c, j) => { c.classList.add("reached"); c.classList.toggle("active", j === i); });
-        flyTo([-CITIES[i].coord[0], -CITIES[i].coord[1]], 3.2, still ? 0 : 900, now);
-        if (still) { cam = { ...tween.to }; tween = null; }
-        focused = i;
         kick();
       }
 
       // ----- globe ↔ flat map -----
       function enterMap(now, instant = false) {
         mode = "map";
-        focused = -1;
         spot = null;
         mapK = 1; pan = [0, 0]; mapAnim = null;
         if (instant || still) {
@@ -1229,7 +1152,6 @@
         const map = v === "visited";
         subEl.hidden = map;
         replayEl.hidden = map;
-        stopsEl.hidden = map;
         legendEl.hidden = !map;
         zoomEl.hidden = !map;
         canvas.setAttribute("aria-label", LABELS[v]);
@@ -1323,7 +1245,7 @@
           return;
         }
         if (mode !== "story") {
-          // Gentle idle spin once the story is over (not while a city is focused or being dragged)
+          // Gentle idle spin once the story is over (not while being dragged)
           if (mode === "done" && !tween && !dragging && !still) cam.rot[0] += (now - last) * 0.004;
           return;
         }
@@ -1334,8 +1256,6 @@
           progress = Math.min(1, elapsed / dur);
           if (progress === 1) {
             startPhase("arrive", now);
-            chips.forEach(c => c.classList.remove("active"));
-            chips[leg + 1].classList.add("reached", "active");
           }
         } else if (phase === "arrive" && elapsed > 650) {
           leg++;
@@ -1429,8 +1349,8 @@
         // City markers and labels
         const reached = mode === "story" ? leg + (phase === "arrive" ? 1 : 0) : LEGS;
         const placed = [];
-        // The clicked (or most recently reached) city, then "Now" and "Next", label first so they win collisions
-        const first = mode === "focus" && focused >= 0 ? [focused] : mode === "story" ? [reached] : [];
+        // The most recently reached city, then "Now" and "Next", label first so they win collisions
+        const first = mode === "story" ? [reached] : [];
         const order = [...first, NOW, NOW + 1, ...CITIES.keys()].filter((v, k, a) => a.indexOf(v) === k);
         order.forEach(i => {
           const c = CITIES[i];
@@ -1452,7 +1372,7 @@
           ctx.fillStyle = color;
           ctx.shadowColor = color;
           ctx.shadowBlur = 10;
-          ctx.beginPath(); ctx.arc(x, y, i === focused && mode === "focus" ? 5 : 3.5, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.fill();
           ctx.shadowBlur = 0;
           drawLabel(c.name, x, y, color, placed);
         });
@@ -1724,7 +1644,7 @@
         if (!raf && visible && projection) { last = performance.now(); raf = requestAnimationFrame(frame); }
       }
 
-      replayEl.addEventListener("click", () => { focused = -1; if (projection) restart(); });
+      replayEl.addEventListener("click", () => { if (projection) restart(); });
 
       return {
         setVisible(on) {
