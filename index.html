@@ -112,15 +112,28 @@
       gap: 18px;
     }
     .avatar-ring {
+      position: relative;
       width: 96px;
       height: 96px;
       padding: 3px;
       border-radius: 50%;
       background: conic-gradient(from 200deg, var(--violet), var(--cyan), var(--gold), var(--violet));
-      box-shadow: 0 0 40px rgba(167, 139, 250, .45);
+      box-shadow: 0 0 24px rgba(167, 139, 250, .3);
       animation: spin 18s linear infinite;
       flex-shrink: 0;
     }
+    /* A soft glow that travels around the ring and gently breathes */
+    .avatar-ring::before {
+      content: "";
+      position: absolute;
+      inset: -14px;
+      z-index: -1;
+      border-radius: 50%;
+      background: conic-gradient(transparent 0deg 170deg, var(--violet) 240deg, var(--cyan) 305deg, var(--gold) 345deg, transparent 360deg);
+      filter: blur(12px);
+      animation: spin 6s linear infinite, breathe 4s ease-in-out infinite;
+    }
+    @keyframes breathe { 50% { opacity: .5; } }
     .avatar-ring img {
       display: block;
       width: 100%;
@@ -208,44 +221,54 @@
       .socials { margin-top: 18px; }
     }
 
-    /* ---------- Tabs ---------- */
+    /* ---------- Tabs: text with a sliding gradient underline ---------- */
     nav {
       position: sticky;
-      top: 12px;
+      top: 0;
       z-index: 10;
-      display: flex;
+      padding-top: 6px;
+      transition: background .25s ease;
+    }
+    /* Frosted backing only while the bar is pinned over scrolling content */
+    nav.stuck {
+      background: rgba(5, 6, 15, .72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
     nav ul {
+      position: relative;
       list-style: none;
       display: flex;
-      gap: 4px;
-      padding: 5px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(10, 12, 28, .7);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      gap: 28px;
+      border-bottom: 1px solid var(--line);
     }
     nav a {
       display: block;
-      padding: 8px 18px;
-      border-radius: 999px;
-      font-size: 0.875rem;
+      padding: 10px 0 12px;
+      font-size: 0.9375rem;
       font-weight: 600;
       color: var(--muted);
       text-decoration: none;
-      transition: color .2s ease, background .2s ease, box-shadow .2s ease;
+      transition: color .25s ease;
     }
     nav a:hover { color: var(--text); }
+    nav a[aria-selected="true"] { color: var(--text); }
+    nav a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; border-radius: 4px; }
+    .tab-ink {
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 0;
+      height: 2px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--violet), var(--cyan));
+      box-shadow: 0 0 12px rgba(167, 139, 250, .7);
+      transition: transform .35s cubic-bezier(.4, 0, .2, 1), width .35s cubic-bezier(.4, 0, .2, 1);
+    }
     @media (max-width: 440px) {
-      nav a { padding: 7px 11px; font-size: 0.8125rem; }
+      nav ul { gap: 18px; }
+      nav a { font-size: 0.875rem; }
     }
-    nav a[aria-selected="true"] {
-      color: #0b0b1a;
-      background: linear-gradient(100deg, var(--violet), var(--cyan));
-      box-shadow: 0 0 24px rgba(167, 139, 250, .45);
-    }
-    nav a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 
     /* ---------- Panels ---------- */
     main { flex: 1; }
@@ -636,12 +659,14 @@
     </aside>
 
     <div class="content">
+      <div class="nav-sentinel" aria-hidden="true"></div>
       <nav aria-label="Sections">
         <ul role="tablist">
           <li role="presentation"><a href="#projects" id="tab-projects" role="tab" aria-controls="projects" aria-selected="true">Projects</a></li>
           <li role="presentation"><a href="#writing" id="tab-writing" role="tab" aria-controls="writing" aria-selected="false" tabindex="-1">Writing</a></li>
           <li role="presentation"><a href="#photography" id="tab-photography" role="tab" aria-controls="photography" aria-selected="false" tabindex="-1">Photography</a></li>
           <li role="presentation"><a href="#journey" id="tab-journey" role="tab" aria-controls="journey" aria-selected="false" tabindex="-1">Journey</a></li>
+          <li class="tab-ink" role="presentation" aria-hidden="true"></li>
         </ul>
       </nav>
 
@@ -1182,7 +1207,7 @@
         view = v;
         viewBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.view === v));
         const map = v === "visited";
-        subEl.textContent = map ? STATS : "The places I've called home";
+        subEl.hidden = map;
         replayEl.hidden = map;
         stopsEl.hidden = map;
         legendEl.hidden = !map;
@@ -1688,9 +1713,21 @@
     const nav = document.querySelector("nav");
     const content = document.querySelector(".content");
     // Scroll position at which the tab bar reaches its sticky spot (it opens the content panel)
-    const tabsTop = () => content.getBoundingClientRect().top + scrollY + parseFloat(getComputedStyle(content).paddingTop) - 12;
+    const tabsTop = () => content.getBoundingClientRect().top + scrollY + parseFloat(getComputedStyle(content).paddingTop);
     const tabs = [...document.querySelectorAll('[role="tab"]')];
     const panels = tabs.map(t => document.getElementById(t.getAttribute("aria-controls")));
+
+    // The bar is pinned once its sentinel (just above it) scrolls out of view
+    new IntersectionObserver(([e]) => nav.classList.toggle("stuck", !e.isIntersecting))
+      .observe(document.querySelector(".nav-sentinel"));
+
+    const ink = document.querySelector(".tab-ink");
+    const moveInk = (tab, animate = true) => {
+      if (!animate) ink.style.transition = "none";
+      ink.style.width = `${tab.offsetWidth}px`;
+      ink.style.transform = `translateX(${tab.offsetLeft}px)`;
+      if (!animate) { ink.offsetWidth; ink.style.transition = ""; }
+    };
 
     function selectTab(tab, { focus = false, updateHash = true } = {}) {
       tabs.forEach((t, i) => {
@@ -1700,6 +1737,7 @@
         panels[i].hidden = !on;
       });
       if (focus) tab.focus();
+      moveInk(tab);
       journey.setVisible(tab.id === "tab-journey");
       if (updateHash) history.replaceState(null, "", tab.getAttribute("href"));
       // If the tab bar is stuck to the top, bring the new panel's start into view
@@ -1722,6 +1760,11 @@
 
     const initial = tabs.find(t => t.getAttribute("href") === location.hash) || tabs[0];
     selectTab(initial, { updateHash: false });
+    moveInk(initial, false);
+    // Re-measure once the web font has loaded and whenever the layout changes width
+    const current = () => tabs.find(t => t.getAttribute("aria-selected") === "true");
+    document.fonts?.ready.then(() => moveInk(current(), false));
+    addEventListener("resize", () => moveInk(current(), false));
     // A shared #tab link opens with the tabs in view
     if (initial !== tabs[0] || location.hash) {
       addEventListener("load", () => scrollTo({ top: tabsTop() }));
