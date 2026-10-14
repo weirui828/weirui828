@@ -4,7 +4,7 @@
 
 I build AI that dreams,<br />
 teach machines to grade machines,<br />
-and hunt golden hour on mountain trails.
+and chase beautiful scenes through a lens.
 
 <br />
 
