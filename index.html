@@ -32,6 +32,8 @@
       --violet: #a78bfa;
       --cyan: #22d3ee;
       --gold: #fbbf24;
+      --rose: #f472b6;      /* Wandering: lived */
+      --emerald: #34d399;   /* Wandering: visited */
       --glow: 0 0 0 1px rgba(167, 139, 250, .35), 0 10px 40px -10px rgba(167, 139, 250, .45);
       --radius: 18px;
     }
@@ -252,10 +254,10 @@
       transform: scale(1.5);
       animation: twinkle 2.4s ease-in-out infinite;
     }
-    /* Wandering: rose → teal, blended around the colour wheel (oklch) so the middle stays vivid */
+    /* Wandering: rose → emerald like its Lived · Visited ball, blended in oklch so the middle stays vivid */
     #tab-journey[aria-selected="true"] .star {
-      background: linear-gradient(90deg, #f472b6, #2dd4bf);
-      background: linear-gradient(90deg in oklch, #f472b6, #2dd4bf);
+      background: linear-gradient(90deg, var(--rose), var(--emerald));
+      background: linear-gradient(90deg in oklch longer hue, var(--rose), var(--emerald));   /* via violet and blue, not orange */
     }
     @keyframes twinkle { 50% { box-shadow: 0 0 4px var(--c), 0 0 11px var(--c); } }
     /* The Dipper's handle: three faint stars kept for future tabs */
@@ -551,7 +553,7 @@
       font-size: 0.875rem;
       pointer-events: none;
     }
-    /* Lived · Visited switch: a ball split in two, cyan (lived) on the left, gold (visited) on the right */
+    /* Lived · Visited switch: a ball split in two, rose (lived) on the left, emerald (visited) on the right */
     .view-toggle {
       display: inline-flex;
       align-items: center;
@@ -579,8 +581,8 @@
       opacity: .28;
       transition: opacity .25s ease, box-shadow .25s ease;
     }
-    .view-toggle [data-view="lived"] { --c: var(--cyan); }
-    .view-toggle [data-view="visited"] { --c: #fcd34d; }
+    .view-toggle [data-view="lived"] { --c: var(--rose); }
+    .view-toggle [data-view="visited"] { --c: var(--emerald); }
     .view-toggle [data-view="lived"] .half { border-radius: 28px 0 0 28px; }
     .view-toggle [data-view="visited"] .half { border-radius: 0 28px 28px 0; }
     .view-toggle button:hover { color: var(--muted); }
@@ -797,8 +799,8 @@
         </div>
       </div>
       <ul class="map-legend" id="map-legend" hidden>
-        <li><i style="--c: #fcd34d"></i>Visited</li>
-        <li><i style="--c: #22d3ee"></i>Lived</li>
+        <li><i style="--c: var(--emerald)"></i>Visited</li>
+        <li><i style="--c: var(--rose)"></i>Lived</li>
         <li><i class="ring" style="--c: #a78bfa"></i>Next</li>
       </ul>
     </section>
@@ -1435,7 +1437,7 @@
           if (d3.geoDistance(c.coord, center) > reach - 0.02) return;
           const [x, y] = projection(c.coord);
           const isNext = i === NOW + 1, isNow = i === NOW;
-          const color = isNext ? "#fbbf24" : isNow ? "#22d3ee" : "#e8ebff";
+          const color = isNext ? COLORS.next : isNow ? COLORS.lived : "#e8ebff";
           // pulse on arrival, and forever on "now" / "next"
           const arriving = mode === "story" && phase === "arrive" && i === leg + 1;
           if (arriving || ((isNow || isNext) && !still)) {
@@ -1478,7 +1480,7 @@
         ctx.globalAlpha = 1;
       }
 
-      const COLORS = { visited: "#fcd34d", lived: "#22d3ee", next: "#a78bfa" };
+      const COLORS = { visited: "#34d399", lived: "#f472b6", next: "#a78bfa" };   // emerald, rose, violet
       const placeLabel = p => `${p.name} · ${p.region}${p.ski ? " · ski trip" : ""}`;
 
       function drawVisited(now, grow) {
@@ -1565,16 +1567,16 @@
         if (future) {
           ctx.setLineDash([6, 6]);
           ctx.lineDashOffset = still ? 0 : -performance.now() / 60;
-          ctx.strokeStyle = "#fbbf24";
-          ctx.shadowColor = "rgba(251, 191, 36, .8)";
+          ctx.strokeStyle = COLORS.next;
+          ctx.shadowColor = "rgba(167, 139, 250, .8)";
         } else {
           const [x0, y0] = projection(CITIES[i].coord);
           const [x1, y1] = projection(CITIES[i + 1].coord);
           const g = ctx.createLinearGradient(x0, y0, x1, y1);
           g.addColorStop(0, "#a78bfa");
-          g.addColorStop(1, "#22d3ee");
+          g.addColorStop(1, COLORS.lived);
           ctx.strokeStyle = g;
-          ctx.shadowColor = "rgba(167, 139, 250, .9)";
+          ctx.shadowColor = "rgba(244, 114, 182, .8)";
         }
         ctx.shadowBlur = 12;
         ctx.lineWidth = 2.2;
@@ -1751,7 +1753,7 @@
     // The four bowl stars are the tabs; the handle's three stars wait for future tabs.
     const DIPPER = [[77, 34], [74, 95], [156, 126], [190, 88], [250, 100], [297, 112], [334, 176]];
     const SEGMENTS = [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [4, 5], [5, 6]];
-    const TAB_COLORS = { "tab-projects": "var(--violet)", "tab-writing": "var(--cyan)", "tab-photography": "var(--gold)", "tab-journey": "#f472b6" };
+    const TAB_COLORS = { "tab-projects": "var(--violet)", "tab-writing": "var(--cyan)", "tab-photography": "var(--gold)", "tab-journey": "var(--rose)" };
     const skyLines = nav.querySelector(".sky-lines");
     const starItems = [...nav.querySelectorAll("li")];
     starItems.forEach((li, i) => { li.style.setProperty("--x", `${DIPPER[i][0]}px`); li.style.setProperty("--y", `${DIPPER[i][1]}px`); });
