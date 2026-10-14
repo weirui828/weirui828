@@ -461,32 +461,51 @@
       font-size: 0.875rem;
       pointer-events: none;
     }
+    /* Lived · Visited switch: a ball split in two, cyan (lived) on the left, gold (visited) on the right */
     .view-toggle {
       display: inline-flex;
-      padding: 3px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--glass);
+      align-items: center;
+      gap: 2px;
       align-self: center;
     }
     .view-toggle button {
-      padding: 4px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0;
       border: 0;
-      border-radius: 999px;
       background: none;
-      color: var(--muted);
+      color: var(--faint);
       font: inherit;
       font-size: 0.8125rem;
       font-weight: 600;
       cursor: pointer;
+      transition: color .25s ease;
     }
-    .view-toggle button:hover { color: var(--text); }
-    .view-toggle button[aria-pressed="true"] {
-      background: var(--glass-hover);
-      color: var(--text);
-      box-shadow: inset 0 0 0 1px rgba(167, 139, 250, .45);
+    .view-toggle .half {
+      width: 14px;
+      height: 28px;
+      background: var(--c);
+      opacity: .28;
+      transition: opacity .25s ease, box-shadow .25s ease;
     }
+    .view-toggle [data-view="lived"] { --c: var(--cyan); }
+    .view-toggle [data-view="visited"] { --c: #fcd34d; }
+    .view-toggle [data-view="lived"] .half { border-radius: 28px 0 0 28px; }
+    .view-toggle [data-view="visited"] .half { border-radius: 0 28px 28px 0; }
+    .view-toggle button:hover { color: var(--muted); }
+    .view-toggle button:hover .half { opacity: .55; }
+    .view-toggle button[aria-pressed="true"] { color: var(--text); }
+    .view-toggle button[aria-pressed="true"] .half {
+      opacity: 1;
+      box-shadow: 0 0 14px var(--c);
+    }
+    .view-toggle button:focus-visible { outline: none; }
+    .view-toggle button:focus-visible .lbl { text-decoration: underline; text-underline-offset: 4px; }
     .journey-sub {
+      margin-left: 14px;
+      padding-left: 16px;
+      border-left: 1px solid var(--line);   /* sets the caption apart from the switch */
       margin-right: auto;
       color: var(--muted);
       font-size: 0.9375rem;
@@ -729,8 +748,8 @@
     <section id="journey" role="tabpanel" aria-labelledby="tab-journey" hidden>
       <div class="section-head">
         <div class="view-toggle" role="group" aria-label="Map view">
-          <button type="button" data-view="lived" aria-pressed="true">Lived</button>
-          <button type="button" data-view="visited" aria-pressed="false">Visited</button>
+          <button type="button" data-view="lived" aria-pressed="true"><span class="lbl">Lived</span><span class="half"></span></button>
+          <button type="button" data-view="visited" aria-pressed="false"><span class="half"></span><span class="lbl">Visited</span></button>
         </div>
         <p class="journey-sub" id="journey-sub">The places I've called home</p>
         <button class="replay" type="button" id="replay">Replay ↺</button>
@@ -1231,7 +1250,7 @@
       }
       // Zoom to k2, keeping the map point under (mx, my) fixed on screen
       function zoomAt(mx, my, k2, dur = 0) {
-        k2 = Math.max(1, Math.min(10, k2));
+        k2 = Math.max(1, Math.min(20, k2));
         const o = mapOrigin(mapK), o2 = mapOrigin(k2);
         const T = [o[0] + pan[0], o[1] + pan[1]];
         const T2 = [mx - (mx - T[0]) * k2 / mapK, my - (my - T[1]) * k2 / mapK];
@@ -1438,14 +1457,14 @@
         });
       }
 
-      // Label to the right of the dot, else to the left, else skip if both would overlap another label
+      // Label to the right of the dot, else left, above or below; skip it if every spot overlaps another label
       function drawLabel(text, x, y, color, placed = [], alpha = 1) {
         ctx.font = '600 12px "Space Grotesk", sans-serif';
         ctx.textBaseline = "middle";
         const w = ctx.measureText(text).width + 16;
-        const boxes = [{ x0: x + 8 }, { x0: x - 8 - w }]
-          .map(b => ({ ...b, x1: b.x0 + w, y0: y - 10, y1: y + 10 }))
-          .filter(b => b.x0 > 0 && b.x1 < W);
+        const boxes = [[x + 8, y], [x - 8 - w, y], [x - w / 2, y - 18], [x - w / 2, y + 18]]
+          .map(([x0, cy]) => ({ x0, x1: x0 + w, y0: cy - 10, y1: cy + 10, cy }))
+          .filter(b => b.x0 > 0 && b.x1 < W && b.y0 > 0 && b.y1 < H);
         const hit = b => placed.some(p => b.x0 < p.x1 && b.x1 > p.x0 && b.y0 < p.y1 && b.y1 > p.y0);
         const box = boxes.find(b => !hit(b));
         if (!box) return;
@@ -1457,7 +1476,7 @@
         ctx.fill();
         ctx.fillStyle = color;
         ctx.textAlign = "left";
-        ctx.fillText(text, box.x0 + 8, y);
+        ctx.fillText(text, box.x0 + 8, box.cy);
         ctx.globalAlpha = 1;
       }
 
@@ -1497,7 +1516,14 @@
           t = (now - spot.start) / SPOT_MS;
           a = Math.min(1, t / 0.12, (1 - t) / 0.15);   // fade in, hold, fade out
         }
+        // Every dot in view is an obstacle, so no label covers another place
         const placed = [];
+        if (mapK >= 2.2) {
+          for (const q of PLACES) {
+            const [x, y] = projection(q.coord);
+            if (x >= 0 && y >= 0 && x <= W && y <= H) placed.push({ x0: x - 4, x1: x + 4, y0: y - 4, y1: y + 4 });
+          }
+        }
         if (p && a > 0) drawHighlight(p, a, r0, now, placed);
 
         // Zoomed in: name every place in view (the highlighted one already claimed its spot)
