@@ -118,7 +118,7 @@
       padding: 3px;
       border-radius: 50%;
       background: conic-gradient(from 200deg, var(--violet), var(--cyan), var(--gold), var(--violet));
-      box-shadow: 0 0 24px rgba(167, 139, 250, .3);
+      box-shadow: 0 0 12px rgba(167, 139, 250, .25);
       animation: spin 18s linear infinite;
       flex-shrink: 0;
     }
@@ -126,11 +126,11 @@
     .avatar-ring::before {
       content: "";
       position: absolute;
-      inset: -14px;
+      inset: -6px;
       z-index: -1;
       border-radius: 50%;
       background: conic-gradient(transparent 0deg 170deg, var(--violet) 240deg, var(--cyan) 305deg, var(--gold) 345deg, transparent 360deg);
-      filter: blur(12px);
+      filter: blur(6px);
       animation: spin 6s linear infinite, breathe 4s ease-in-out infinite;
     }
     @keyframes breathe { 50% { opacity: .5; } }
