@@ -37,6 +37,8 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Always reserve the scrollbar's space, so switching to a taller tab doesn't nudge the layout sideways */
+    html { scrollbar-gutter: stable; }
 
     body {
       font-family: "Inter", system-ui, -apple-system, sans-serif;
