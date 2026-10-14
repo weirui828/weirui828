@@ -896,9 +896,11 @@
           if (text) node.textContent = text;
           return node;
         };
+        // Only ever link to Medium, whatever ends up in posts.json
+        const safe = link => /^https:\/\/medium\.com\//.test(link) ? link : "https://medium.com/@wei.rui828";
         list.replaceChildren(...posts.slice(0, 4).map(({ title, link, date, summary, tags = [] }) => {
           const a = el("a", "glass project post");
-          a.href = link;
+          a.href = safe(link);
           a.target = "_blank";
           a.rel = "noopener";
           const tagList = el("ul", "tags");
@@ -1060,11 +1062,12 @@
       const been = [...VISITED, ...CITIES.slice(0, NOW + 1)];
       const STATS = `${been.length} places · ${new Set(been.map(p => p.country)).size} countries & regions`;
 
+      // Pinned versions with integrity hashes: the browser refuses any file that doesn't match exactly
       const LIBS = [
-        "https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js",
-        "https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js",
+        ["https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js", "sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i"],
+        ["https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js", "sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67"],
       ];
-      const ATLAS = "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json";
+      const ATLAS = ["https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json", "sha384-5oFOGoMd0tkagYW08lVco4uAi7XDEDBwBxOdeKx+SA1ihbsHiR/aFAJGretluTzG"];
       const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
       const FLAT_ROT = [-15, 0];          // flat map centred on 15°E keeps the Americas left and Asia/Australia right
       const SPOT_MS = 3200;               // how long each random spotlight lasts
@@ -1100,17 +1103,19 @@
       let press = null, pinch = null, lastTap = null;
       const zoomEl = document.getElementById("map-zoom");
 
-      const loadScript = src => new Promise((resolve, reject) => {
+      const loadScript = ([src, integrity]) => new Promise((resolve, reject) => {
         const el = document.createElement("script");
         el.src = src;
+        el.integrity = integrity;
+        el.crossOrigin = "anonymous";
         el.onload = resolve;
         el.onerror = reject;
         document.head.append(el);
       });
 
       async function init() {
-        for (const src of LIBS) await loadScript(src);
-        const world = await (await fetch(ATLAS)).json();
+        for (const lib of LIBS) await loadScript(lib);
+        const world = await (await fetch(ATLAS[0], { integrity: ATLAS[1] })).json();
         land = topojson.feature(world, world.objects.land);
 
         // Rasterise land once onto a small equirectangular canvas, then sample it into a dot grid

@@ -35,9 +35,12 @@ with urllib.request.urlopen(req, timeout=30) as resp:
 
 posts = []
 for item in root.iter("item"):
+    link = item.findtext("link").split("?")[0]
+    if not link.startswith("https://medium.com/"):
+        continue
     posts.append({
         "title": item.findtext("title").strip(),
-        "link": item.findtext("link").split("?")[0],
+        "link": link,
         "date": parsedate_to_datetime(item.findtext("pubDate")).strftime("%Y-%m-%d"),
         "summary": summary(item.findtext(CONTENT) or ""),
         "tags": [tag_name(c.text) for c in item.findall("category")][:2],
