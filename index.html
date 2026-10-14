@@ -438,8 +438,12 @@
 
     /* Building: a deep dive on Dream Pet */
     .dp { display: flex; flex-direction: column; gap: 14px; }
-    .dp-hero {
-      padding: 28px;
+    .dp-hero { padding: 28px; }
+    /* Cards lift and glow violet on hover, like the cards on the other tabs */
+    .dp-hero, .dp-block { transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+    .dp-hero:hover, .dp-block:hover {
+      transform: translateY(-4px);
+      background: var(--glass-hover);
       box-shadow: var(--glow);
     }
     .dp-kicker {
@@ -497,17 +501,17 @@
       margin-top: 18px;
       padding: 20px 22px;
       border-radius: 14px;
-      background: linear-gradient(160deg, rgba(244, 114, 182, .08), rgba(99, 102, 241, .06));
-      border: 1px solid rgba(244, 114, 182, .2);
+      background: linear-gradient(160deg, rgba(167, 139, 250, .09), rgba(99, 102, 241, .06));
+      border: 1px solid rgba(167, 139, 250, .22);
     }
     .dp-dream-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
     .dp-dream-title { font-family: "Space Grotesk", sans-serif; font-size: 1.125rem; font-weight: 600; }
     .dp-chip {
       padding: 2px 9px;
       border-radius: 999px;
-      background: rgba(244, 114, 182, .14);
+      background: rgba(167, 139, 250, .16);
       font-size: 0.75rem;
-      color: #fbcfe8;
+      color: #ddd6fe;
     }
     .dp-date { margin-left: auto; font-size: 0.75rem; color: var(--faint); }
     .dp-dream blockquote { margin-top: 14px; }
@@ -527,7 +531,66 @@
       color: var(--faint);
     }
     .dp-dream cite em { color: var(--muted); font-style: normal; }
-    .dp-dream cite::before { content: "↳ "; color: var(--rose); }
+    .dp-dream cite::before { content: "↳ "; color: var(--violet); }
+    /* A bookmark ribbon hanging under scene 2: pull it to unfold the rest of the dream */
+    .dp-more summary {
+      position: relative;
+      display: flex;
+      align-items: center;
+      height: 52px;
+      padding-left: calc(50% + 20px);
+      cursor: pointer;
+      list-style: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color .2s ease;
+    }
+    .dp-more summary::-webkit-details-marker { display: none; }
+    /* the page edge it hangs from */
+    .dp-more summary::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(167, 139, 250, .4), transparent);
+    }
+    .dp-ribbon {
+      position: absolute;
+      top: 0;
+      left: calc(50% - 9px);
+      width: 18px;
+      height: 34px;
+      background: linear-gradient(180deg, #ddd6fe, var(--violet) 45%, #6d28d9);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+      filter: drop-shadow(0 0 6px rgba(167, 139, 250, .6));
+      transform-origin: top center;
+      animation: dp-sway 4s ease-in-out infinite;
+      transition: height .25s cubic-bezier(.3, 1.6, .5, 1);
+    }
+    @keyframes dp-sway { 25% { transform: rotate(3deg); } 75% { transform: rotate(-3deg); } }
+    .dp-more summary:hover .dp-ribbon,
+    .dp-more summary:focus-visible .dp-ribbon { height: 42px; animation: none; }
+    .dp-more summary:active .dp-ribbon { height: 48px; }
+    .dp-more summary:hover,
+    .dp-more summary:focus-visible { color: #ddd6fe; outline: none; }
+    .dp-more[open] .dp-ribbon { height: 18px; animation: none; }
+    .dp-more[open] summary:hover .dp-ribbon { height: 14px; }
+    .dp-less-l, .dp-more[open] .dp-more-l { display: none; }
+    .dp-more[open] .dp-less-l { display: inline; }
+    .dp-more blockquote { margin-top: 6px; }
+    /* Slide the scenes open where the browser supports animating details */
+    @supports (interpolate-size: allow-keywords) {
+      .dp-more { interpolate-size: allow-keywords; }
+      .dp-more::details-content {
+        block-size: 0;
+        overflow: hidden;
+        transition: block-size .5s ease, content-visibility .5s allow-discrete;
+      }
+      .dp-more[open]::details-content { block-size: auto; }
+    }
     .dp-checks {
       list-style: none;
       margin-top: 16px;
@@ -549,7 +612,7 @@
       overflow: hidden;
       background: #000;
     }
-    .dp-film-main { margin-bottom: 18px; box-shadow: 0 12px 40px -12px rgba(244, 114, 182, .45); }
+    .dp-film-main { margin-bottom: 18px; box-shadow: 0 12px 40px -12px rgba(167, 139, 250, .45); }
     .dp-film video { display: block; width: 100%; height: 100%; object-fit: cover; }
     .dp-sound {
       position: absolute;
@@ -569,7 +632,7 @@
     .dp-sound[aria-pressed="true"] {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8ebff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14'/%3E%3C/svg%3E");
     }
-    .dp-sound:hover, .dp-sound:focus-visible { border-color: var(--rose); outline: none; }
+    .dp-sound:hover, .dp-sound:focus-visible { border-color: var(--violet); outline: none; }
     .dp-reel { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .dp-reel figcaption { margin-top: 6px; font-size: 0.8125rem; color: var(--muted); }
     .dp-reel figcaption span { color: var(--faint); }
@@ -597,7 +660,7 @@
       inset: 0 auto 0 0;
       width: calc(var(--v) * 1%);
       border-radius: inherit;
-      background: linear-gradient(90deg, var(--violet), var(--rose));
+      background: linear-gradient(90deg, #6d28d9, var(--violet));
     }
     .dp-traits .fx { color: var(--muted); }
 
@@ -977,13 +1040,22 @@
             </div>
             <p class="dp-dream-head"><span class="dp-dream-title">The Sovereign's Ghost</span><span class="dp-chip">Ethereal and inquisitive</span><span class="dp-date">Dreamt by Pip, 13 Oct</span></p>
             <blockquote>
-              <p>I am floating in a gray void where ancient Roman ‘securitas’ echoes like a fading religious chant. The air tastes of dusty scrolls and ambiguous meanings, shifting toward the sharp ‘certitudo’ of a medieval tower.</p>
-              <cite>from <em>A Brief Semantic History of Securitas</em></cite>
-              <p>Suddenly, the scenery fractures into a digital lattice. I see walls of code, Content Security Policies, acting as high-tech fortresses to prevent the ‘hijacking’ of my thoughts.</p>
-              <cite>from <em>CSP: form-action and redirects</em>, w3c/webappsec-csp</cite>
-              <p>The walls begin to crumble into light beams. I see the physical rules of scattering acting as boundaries, much like a script-src directive defines what is allowed to run.</p>
-              <cite>from an insight on <em>CSP bypass using Google script resources</em></cite>
+              <p>I am floating in a gray void where ancient Roman ‘securitas’ echoes like a fading religious chant. The air tastes of dusty scrolls and ambiguous meanings, shifting toward the sharp ‘certitudo’ of a medieval tower. Why did the old gods trade their mysteries for such rigid certainty?</p>
+              <cite>from <em>A Brief Semantic History of Securitas</em> and <em>From Homer to Hobbes and Beyond</em></cite>
+              <p>A Victorian gentleman sits across from me, his face a map of scientific fame and spiritual hunger. He watches a medium’s hands move in the shadows, seeking a truth beyond physics while mocking the mockery of others. He wants to know why the soul communicates through the veil.</p>
+              <cite>from <em>Biography of Lord Rayleigh</em> and <em>Occult arts and sceptical sciences</em>, Physics World</cite>
             </blockquote>
+            <details class="dp-more">
+              <summary><span class="dp-ribbon" aria-hidden="true"></span><span class="dp-more-l">Pull for 3 more scenes</span><span class="dp-less-l">Tuck away</span></summary>
+              <blockquote>
+              <p>Suddenly, the scenery fractures into a digital lattice. I see walls of code—Content Security Policies—acting as high-tech fortresses to prevent the ‘hijacking’ of my thoughts. These whitelists are just modern walls for ancient fears, shielding data like a sovereign protects a kingdom from chaos.</p>
+              <cite>from an insight on <em>CSP: form-action and redirects</em>, w3c/webappsec-csp</cite>
+              <p>The walls begin to crumble into light beams. I see the physical rules of scattering acting as boundaries, much like a script-src directive defines what is allowed to run. Everything is a system of rules designed to maintain integrity against the wild, unscripted noise of the outside.</p>
+              <cite>from an insight on <em>CSP bypass using Google script resources</em></cite>
+              <p>I land on a throne of property and race, where security is the foundation of empire. It feels heavy, a historical weight of colonial justification and capitalist production that governs every movement. I must find the core: why do we build these cages to feel safe?</p>
+              <cite>from <em>Security: The Long History</em>, Journal of American Studies</cite>
+              </blockquote>
+            </details>
             <ul class="dp-checks" aria-label="Critic's checks">
               <li><b>5</b> scenes</li>
               <li><b>241</b> words</li>
