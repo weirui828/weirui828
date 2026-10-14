@@ -578,6 +578,8 @@
     .dp-more summary:focus-visible { color: #ddd6fe; outline: none; }
     .dp-more[open] .dp-ribbon { height: 18px; animation: none; }
     .dp-more[open] summary:hover .dp-ribbon { height: 14px; }
+    /* The labels are for screen readers only: what the ribbon does is a little surprise */
+    .dp-more-l, .dp-less-l { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .dp-less-l, .dp-more[open] .dp-more-l { display: none; }
     .dp-more[open] .dp-less-l { display: inline; }
     .dp-more blockquote { margin-top: 6px; }
@@ -1046,7 +1048,7 @@
               <cite>from <em>Biography of Lord Rayleigh</em> and <em>Occult arts and sceptical sciences</em>, Physics World</cite>
             </blockquote>
             <details class="dp-more">
-              <summary><span class="dp-ribbon" aria-hidden="true"></span><span class="dp-more-l">Pull for 3 more scenes</span><span class="dp-less-l">Tuck away</span></summary>
+              <summary><span class="dp-ribbon" aria-hidden="true"></span><span class="dp-more-l">Show the rest of the dream</span><span class="dp-less-l">Hide the rest of the dream</span></summary>
               <blockquote>
               <p>Suddenly, the scenery fractures into a digital lattice. I see walls of code—Content Security Policies—acting as high-tech fortresses to prevent the ‘hijacking’ of my thoughts. These whitelists are just modern walls for ancient fears, shielding data like a sovereign protects a kingdom from chaos.</p>
               <cite>from an insight on <em>CSP: form-action and redirects</em>, w3c/webappsec-csp</cite>
@@ -2175,6 +2177,44 @@
     if (initial !== tabs[0] || location.hash) {
       addEventListener("load", () => scrollTo({ top: tabsTop() }));
     }
+
+    // Pulling the dream's bookmark makes a soft paper swish (synthesised, so there's no file to load):
+    // a band of noise sweeping up as it opens and down as it tucks away, plus a faint pluck
+    let audio;
+    const swish = opening => {
+      try {
+        audio ||= new (window.AudioContext || window.webkitAudioContext)();
+        const t = audio.currentTime, len = 0.28;
+        const noise = audio.createBuffer(1, audio.sampleRate * len, audio.sampleRate);
+        const data = noise.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+        const src = audio.createBufferSource();
+        src.buffer = noise;
+        const band = audio.createBiquadFilter();
+        band.type = "bandpass";
+        band.Q.value = 1.2;
+        band.frequency.setValueAtTime(opening ? 700 : 2600, t);
+        band.frequency.exponentialRampToValueAtTime(opening ? 2600 : 700, t + len);
+        const hiss = audio.createGain();
+        hiss.gain.setValueAtTime(0.0001, t);
+        hiss.gain.exponentialRampToValueAtTime(0.12, t + 0.04);
+        hiss.gain.exponentialRampToValueAtTime(0.0001, t + len);
+        src.connect(band).connect(hiss).connect(audio.destination);
+        src.start(t);
+        const tone = audio.createOscillator();
+        tone.type = "triangle";
+        tone.frequency.setValueAtTime(opening ? 880 : 660, t + 0.12);
+        const pluck = audio.createGain();
+        pluck.gain.setValueAtTime(0.0001, t + 0.12);
+        pluck.gain.exponentialRampToValueAtTime(0.05, t + 0.13);
+        pluck.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+        tone.connect(pluck).connect(audio.destination);
+        tone.start(t + 0.12);
+        tone.stop(t + 0.5);
+      } catch {}
+    };
+    document.querySelectorAll(".dp-more summary").forEach(s =>
+      s.addEventListener("click", () => swish(!s.parentElement.open)));
 
     // Dream films: loop silently while on screen (not with reduced motion); click a film to play/pause,
     // and the speaker button gives one film sound at a time
