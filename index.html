@@ -375,17 +375,17 @@
     .posts .empty { padding: 16px 20px; color: var(--muted); }
 
     /* Photography */
-    /* Justified row: every photo keeps its own aspect ratio (--ar) at a shared height */
+    /* Justified gallery: rows wrap and fill the width; photos in a row share a height and keep their
+       own aspect ratio (--ar), because both the base width and the growth are proportional to --ar */
     .photos {
       display: flex;
+      flex-wrap: wrap;
       gap: 14px;
     }
     .photos figure {
-      flex: var(--ar) 1 0;
+      /* grow ×100 so a lone photo with --ar < 1 still fills its row (grow factors under 1 only take part of the space) */
+      flex: calc(var(--ar) * 100) 1 calc(var(--ar) * 300px);
       min-width: 0;
-    }
-    @media (max-width: 600px) {
-      .photos { flex-direction: column; }
     }
     .photo {
       position: relative;
@@ -724,16 +724,16 @@
         <a class="more" href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener">Follow on Instagram →</a>
       </div>
       <div class="photos">
-        <figure style="--ar: 0.891">
-          <a class="photo" href="https://www.instagram.com/p/DSyv6jMEUTl/" target="_blank" rel="noopener">
-            <img src="assets/photos/weiniverse-burney-falls.jpg" alt="Burney Falls pouring over mossy cliffs after days of rain" loading="lazy" onerror="this.remove()" />
-            <figcaption><span class="place">Burney Falls</span><span class="meta">Northern California</span></figcaption>
-          </a>
-        </figure>
         <figure style="--ar: 1.804">
           <a class="photo" href="https://www.instagram.com/p/C0YJR4trBM1/" target="_blank" rel="noopener">
             <img src="assets/photos/weiniverse-mission-beach.jpg" alt="Palm trees silhouetted against a sunset, reflected in glass-still water at Mission Beach" loading="lazy" onerror="this.remove()" />
             <figcaption><span class="place">Mission Beach</span><span class="meta">San Diego</span></figcaption>
+          </a>
+        </figure>
+        <figure style="--ar: 0.891">
+          <a class="photo" href="https://www.instagram.com/p/DSyv6jMEUTl/" target="_blank" rel="noopener">
+            <img src="assets/photos/weiniverse-burney-falls.jpg" alt="Burney Falls pouring over mossy cliffs after days of rain" loading="lazy" onerror="this.remove()" />
+            <figcaption><span class="place">Burney Falls</span><span class="meta">Northern California</span></figcaption>
           </a>
         </figure>
         <figure style="--ar: 1.245">
