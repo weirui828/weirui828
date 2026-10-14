@@ -76,7 +76,7 @@
       margin: 0 auto;
       padding: 0 24px;
       display: grid;
-      grid-template-columns: 310px minmax(0, 1fr);
+      grid-template-columns: 350px minmax(0, 1fr);
       gap: 56px;
     }
     .content {
@@ -99,15 +99,21 @@
     }
     .profile-card {
       width: 100%;
-      padding: 32px 28px;
+      padding: 28px 24px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
     }
 
+    /* Headshot with the name beside it, on every screen size */
+    .id-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
     .avatar-ring {
-      width: 112px;
-      height: 112px;
+      width: 96px;
+      height: 96px;
       padding: 3px;
       border-radius: 50%;
       background: conic-gradient(from 200deg, var(--violet), var(--cyan), var(--gold), var(--violet));
@@ -127,17 +133,31 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     h1 {
-      margin-top: 22px;
       font-family: "Space Grotesk", sans-serif;
-      font-size: 1.625rem;
+      font-size: 2rem;
       font-weight: 700;
-      letter-spacing: -0.01em;
-      line-height: 1.2;
+      letter-spacing: 0.01em;
+      line-height: 1.1;
+      background: linear-gradient(100deg, #fff 5%, var(--violet) 50%, var(--cyan) 95%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 18px rgba(167, 139, 250, .35));
     }
     .role {
-      margin-top: 4px;
-      color: var(--muted);
+      margin-top: 18px;
+      color: var(--text);
       font-weight: 500;
+    }
+    .bio {
+      margin-top: 12px;
+      font-size: 0.9rem;   /* each line of the poem fits on one line in the sidebar */
+      line-height: 1.65;
+      color: var(--muted);
+    }
+    .bio em {
+      font-style: normal;
+      color: var(--text);
     }
 
     .socials {
@@ -166,32 +186,6 @@
     }
     .socials svg { width: 19px; height: 19px; fill: currentColor; }
 
-    /* ---------- Intro: wordmark + poem at the top of the content panel ---------- */
-    .wordmark {
-      display: inline-block;   /* so the gradient spans the word, not the whole column */
-      font-family: "Space Grotesk", sans-serif;
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: linear-gradient(100deg, #fff 10%, var(--violet) 45%, var(--cyan) 80%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      filter: drop-shadow(0 0 24px rgba(167, 139, 250, .35));
-    }
-    .bio {
-      margin-top: 20px;
-      font-size: 1.125rem;
-      line-height: 1.6;
-      color: var(--muted);
-    }
-    .bio em {
-      font-style: normal;
-      color: var(--text);
-    }
-
     /* ---------- Narrow screens: sidebar becomes a compact header ---------- */
     @media (max-width: 900px) {
       .layout {
@@ -206,19 +200,12 @@
         height: auto;
         padding: 24px 0 0;
       }
-      .profile-card {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        column-gap: 16px;
-        align-items: center;
-        padding: 20px;
-      }
-      .avatar-ring { width: 72px; height: 72px; grid-row: span 2; }
-      h1 { margin-top: 0; font-size: 1.375rem; align-self: end; }
-      .role { align-self: start; font-size: 0.9375rem; }
-      .socials { grid-column: 1 / -1; justify-self: start; }
-      .socials { margin-top: 14px; }
-      .bio { font-size: 1.0625rem; }
+      .profile-card { padding: 20px; }
+      .avatar-ring { width: 76px; height: 76px; }
+      h1 { font-size: 1.75rem; }
+      .role { margin-top: 14px; }
+      .bio { font-size: 0.9375rem; }
+      .socials { margin-top: 18px; }
     }
 
     /* ---------- Tabs ---------- */
@@ -227,7 +214,6 @@
       top: 12px;
       z-index: 10;
       display: flex;
-      margin-top: 32px;
     }
     nav ul {
       list-style: none;
@@ -616,9 +602,14 @@
   <div class="layout">
     <aside class="profile">
       <div class="glass profile-card">
-        <div class="avatar-ring"><img src="https://github.com/weirui828.png" alt="Wei Rui" /></div>
-        <h1>Wei Rui</h1>
+        <div class="id-row">
+          <div class="avatar-ring"><img src="https://github.com/weirui828.png" alt="Wei Rui" /></div>
+          <h1>Wei Rui</h1>
+        </div>
         <p class="role">AI/ML Engineer · Photographer</p>
+        <p class="bio">I build <em>AI that dreams</em>,<br />
+          teach <em>machines to grade machines</em>,<br />
+          and chase <em>beautiful scenes</em> through a lens.</p>
         <ul class="socials">
           <li>
             <a href="https://www.linkedin.com/in/wei-rui" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn">
@@ -645,13 +636,6 @@
     </aside>
 
     <div class="content">
-      <div class="intro">
-        <p class="wordmark">Weiniverse</p>
-        <p class="bio">I build <em>AI that dreams</em>,<br />
-          teach <em>machines to grade machines</em>,<br />
-          and hunt <em>golden hour</em> on mountain trails.</p>
-      </div>
-
       <nav aria-label="Sections">
         <ul role="tablist">
           <li role="presentation"><a href="#projects" id="tab-projects" role="tab" aria-controls="projects" aria-selected="true">Projects</a></li>
@@ -1702,9 +1686,9 @@
 
     // ---------- Tabs: one section at a time; the URL hash (#writing etc.) picks the tab ----------
     const nav = document.querySelector("nav");
-    const intro = document.querySelector(".intro");
-    // Scroll position at which the tab bar reaches its sticky spot (measured from the intro, which never moves)
-    const tabsTop = () => intro.getBoundingClientRect().bottom + scrollY + 32 - 12;
+    const content = document.querySelector(".content");
+    // Scroll position at which the tab bar reaches its sticky spot (it opens the content panel)
+    const tabsTop = () => content.getBoundingClientRect().top + scrollY + parseFloat(getComputedStyle(content).paddingTop) - 12;
     const tabs = [...document.querySelectorAll('[role="tab"]')];
     const panels = tabs.map(t => document.getElementById(t.getAttribute("aria-controls")));
 
