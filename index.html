@@ -530,6 +530,11 @@
       cursor: pointer;
     }
     .replay:hover { text-decoration: underline; }
+    /* Narrow screens: switch and Replay on one row, the caption on its own line below */
+    @media (max-width: 600px) {
+      .replay { margin-left: auto; }
+      .journey-sub { order: 3; flex-basis: 100%; margin: 4px 0 0; padding: 0; border: 0; }
+    }
     .map-legend {
       list-style: none;
       margin-top: 16px;
@@ -645,10 +650,10 @@
       <div class="nav-sentinel" aria-hidden="true"></div>
       <nav aria-label="Sections">
         <ul role="tablist">
-          <li role="presentation"><a href="#projects" id="tab-projects" role="tab" aria-controls="projects" aria-selected="true">Projects</a></li>
+          <li role="presentation"><a href="#projects" id="tab-projects" role="tab" aria-controls="projects" aria-selected="true">Building</a></li>
           <li role="presentation"><a href="#writing" id="tab-writing" role="tab" aria-controls="writing" aria-selected="false" tabindex="-1">Writing</a></li>
-          <li role="presentation"><a href="#photography" id="tab-photography" role="tab" aria-controls="photography" aria-selected="false" tabindex="-1">Photography</a></li>
-          <li role="presentation"><a href="#journey" id="tab-journey" role="tab" aria-controls="journey" aria-selected="false" tabindex="-1">Journey</a></li>
+          <li role="presentation"><a href="#photography" id="tab-photography" role="tab" aria-controls="photography" aria-selected="false" tabindex="-1">Capturing</a></li>
+          <li role="presentation"><a href="#journey" id="tab-journey" role="tab" aria-controls="journey" aria-selected="false" tabindex="-1">Wandering</a></li>
           <li class="tab-ink" role="presentation" aria-hidden="true"></li>
         </ul>
       </nav>
