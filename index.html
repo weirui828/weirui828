@@ -227,7 +227,7 @@
     nav { --c: var(--violet); }          /* the active tab's colour, set from JS */
     nav ul { list-style: none; }
     nav a {
-      color: var(--muted);
+      color: #a6abcf;                    /* a touch brighter than --muted, so the names read as links */
       font-size: 0.9375rem;
       font-weight: 600;
       text-decoration: none;
@@ -242,11 +242,22 @@
       height: 8px;
       border-radius: 50%;
       background: #c7cdf0;
-      opacity: .55;
+      opacity: .8;                       /* clearly brighter than the backdrop's stars */
       box-shadow: 0 0 6px rgba(199, 205, 240, .5);
       transition: opacity .3s ease, transform .3s ease, background .3s ease, box-shadow .3s ease;
     }
-    nav a:hover .star { opacity: .9; }
+    /* Each tab's own colour: its star glows that colour on hover, as a preview of where it leads */
+    #tab-building { --tc: var(--violet); }
+    #tab-writing { --tc: var(--rose); }
+    #tab-capturing { --tc: var(--emerald); }
+    #tab-wandering { --tc: var(--cyan); }
+    nav a:hover .star {
+      opacity: 1;
+      background: var(--tc);
+      box-shadow: 0 0 8px var(--tc), 0 0 16px var(--tc);
+      transform: scale(1.35);
+    }
+    #tab-wandering:hover .star { background: linear-gradient(90deg, var(--cyan), var(--gold)); }
     nav a[aria-selected="true"] .star {
       opacity: 1;
       background: var(--c);
@@ -537,7 +548,7 @@
       position: relative;
       display: flex;
       align-items: center;
-      height: 52px;
+      height: 26px;                      /* the ribbon hangs past this, over the faded peek below */
       padding-left: calc(50% + 20px);
       cursor: pointer;
       list-style: none;
@@ -561,22 +572,47 @@
       position: absolute;
       top: 0;
       left: calc(50% - 9px);
+      z-index: 1;
       width: 18px;
       height: 34px;
       background: linear-gradient(180deg, #ddd6fe, var(--violet) 45%, #6d28d9);
       clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
       filter: drop-shadow(0 0 6px rgba(167, 139, 250, .6));
       transform-origin: top center;
-      animation: dp-sway 4s ease-in-out infinite;
-      transition: height .25s cubic-bezier(.3, 1.6, .5, 1);
+      /* it breathes softly, and every few seconds gives a little swing, as if caught by a draught */
+      animation: dp-nudge 6s ease-in-out infinite, dp-breathe 3s ease-in-out infinite;
+      transition: height .35s cubic-bezier(.3, 1.8, .5, 1);
     }
-    @keyframes dp-sway { 25% { transform: rotate(3deg); } 75% { transform: rotate(-3deg); } }
+    @keyframes dp-nudge {
+      0%, 78%, 100% { transform: rotate(0); }
+      82% { transform: rotate(7deg); }
+      87% { transform: rotate(-5deg); }
+      92% { transform: rotate(2.5deg); }
+      96% { transform: rotate(-1deg); }
+    }
+    @keyframes dp-breathe { 50% { filter: drop-shadow(0 0 11px rgba(167, 139, 250, .9)); } }
+    /* hovering the ribbon or the faded text stretches it down a little: "pull me" */
     .dp-more summary:hover .dp-ribbon,
-    .dp-more summary:focus-visible .dp-ribbon { height: 42px; animation: none; }
+    .dp-more summary:focus-visible .dp-ribbon,
+    .dp-dream:has(.dp-peek:hover) .dp-ribbon { height: 44px; animation: dp-breathe 3s ease-in-out infinite; }
     .dp-more summary:active .dp-ribbon { height: 48px; }
     .dp-more summary:hover,
     .dp-more summary:focus-visible { color: #ddd6fe; outline: none; }
     .dp-more[open] .dp-ribbon { height: 18px; animation: none; }
+    /* While folded, the start of scene 3 peeks out under the ribbon and fades away */
+    .dp-peek {
+      max-height: 3.4em;
+      overflow: hidden;
+      cursor: pointer;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--text);
+      -webkit-mask-image: linear-gradient(#000, transparent);
+      mask-image: linear-gradient(#000, transparent);
+    }
+    .dp-more[open] + .dp-peek { display: none; }
     .dp-more[open] summary:hover .dp-ribbon { height: 14px; }
     /* The labels are for screen readers only: what the ribbon does is a little surprise */
     .dp-more-l, .dp-less-l { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -1082,6 +1118,7 @@
               <cite>from <em>Security: The Long History</em>, Journal of American Studies</cite>
               </blockquote>
             </details>
+            <p class="dp-peek" aria-hidden="true">Suddenly, the scenery fractures into a digital lattice. I see walls of code—Content Security Policies—acting as high-tech fortresses to prevent the ‘hijacking’ of my thoughts.</p>
             <ul class="dp-checks" aria-label="Critic's checks">
               <li><b>5</b> scenes</li>
               <li><b>241</b> words</li>
@@ -2247,6 +2284,11 @@
     };
     document.querySelectorAll(".dp-more summary").forEach(s =>
       s.addEventListener("click", () => swish(!s.parentElement.open)));
+    document.querySelectorAll(".dp-peek").forEach(p => p.addEventListener("click", () => {
+      const more = p.previousElementSibling;
+      swish(true);
+      more.open = true;
+    }));
 
     // Dream films: loop silently while on screen (not with reduced motion). The film itself or its
     // play button pauses it, and a paused film stays paused when scrolled back into view.
