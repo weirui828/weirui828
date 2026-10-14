@@ -953,6 +953,7 @@
       const VISITED = [
         ["Shenzhen", "China", "China", [114.06, 22.54]],
         ["Hong Kong", "Hong Kong", "Hong Kong", [114.17, 22.32]],
+        ["Macau", "Macau", "Macau", [113.55, 22.19]],
         ["Chongqing", "China", "China", [106.55, 29.56]],
         ["Guilin", "China", "China", [110.29, 25.27]],
         ["Guiyang", "China", "China", [106.63, 26.65]],
@@ -960,6 +961,8 @@
         ["Nanchang", "China", "China", [115.86, 28.68]],
         ["Wuhan", "China", "China", [114.31, 30.59]],
         ["Huizhou", "China", "China", [114.42, 23.11]],
+        ["Zhongshan", "China", "China", [113.39, 22.52]],
+        ["Qingyuan", "China", "China", [113.06, 23.68]],
         ["Sanya", "China", "China", [109.51, 18.25]],
         ["Haikou", "China", "China", [110.33, 20.04]],
         ["Fuzhou", "China", "China", [119.30, 26.08]],
@@ -1269,7 +1272,7 @@
       }
       // Zoom to k2, keeping the map point under (mx, my) fixed on screen
       function zoomAt(mx, my, k2, dur = 0) {
-        k2 = Math.max(1, Math.min(20, k2));
+        k2 = Math.max(1, Math.min(40, k2));
         const o = mapOrigin(mapK), o2 = mapOrigin(k2);
         const T = [o[0] + pan[0], o[1] + pan[1]];
         const T2 = [mx - (mx - T[0]) * k2 / mapK, my - (my - T[1]) * k2 / mapK];
@@ -1414,7 +1417,7 @@
         ctx.beginPath(); path(land); ctx.fill();
 
         // Land as dots, dimmer towards the limb for depth (even across the flat map)
-        const dotR = lerp(Math.max(0.9, Math.min(2.2, 0.0045 * r)), Math.max(1, W / 620) * Math.sqrt(mapK), flat);
+        const dotR = lerp(Math.max(0.9, Math.min(2.2, 0.0045 * r)), Math.max(1, W / 620) * Math.min(3, Math.sqrt(mapK)), flat);
         for (const dpt of dots) {
           const dist = d3.geoDistance(dpt, center);
           if (dist > reach) continue;
