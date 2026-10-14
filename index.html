@@ -476,6 +476,8 @@
     .dp-fig .lbl { font: 600 11px "Inter", sans-serif; fill: var(--muted); }
     .dp-fig .tick { font-weight: 500; fill: var(--faint); text-anchor: middle; }
     .dp-fig text.tick[x="630"] { text-anchor: start; }
+    .dp-fig text.tick[x="30"], .dp-fig .yl { text-anchor: end; }
+    .dp-fig .yr { text-anchor: start; }
     .dp-fig .axis { stroke: var(--line); }
     .dp-fig .thr { stroke: rgba(255, 255, 255, .18); stroke-dasharray: 3 4; }
     .dp-fig .ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
@@ -918,27 +920,27 @@
         <div class="glass dp-block">
           <p class="dp-kicker"><span>01</span>Drives</p>
           <h4>It does things because it wants to</h4>
-          <p>Nobody tells the pet to explore. Boredom creeps up while it's awake, and once it passes 0.66 the pet goes off to read. Every satisfying page pulls boredom back down, and the session ends below 0.30. Searching and reading cost energy, and sleep brings it back. Bedtime is 22:00, and once a night it dreams.</p>
+          <p>Nobody tells the pet to explore. Boredom creeps up while it's awake, and once it passes 0.66 the pet goes off to read. Every satisfying page pulls boredom back down, and the session ends once it's satisfied or has read its fill. Searching and reading cost energy, and sleep brings it back. Bedtime is 22:00, and once a night it dreams.</p>
           <figure class="dp-fig">
-            <svg class="dp-day" viewBox="0 0 660 214" role="img" aria-labelledby="dp-day-t">
-              <title id="dp-day-t">A simulated day: boredom rises to 0.66, drops during two exploring sessions, and decays overnight; energy dips while exploring and refills during sleep.</title>
-              <g class="band explore"><rect x="194" y="10" width="26" height="180"><title>Exploring · 13:27, five reads</title></rect><rect x="378" y="10" width="21" height="180"><title>Exploring · 20:57, four reads</title></rect></g>
-              <rect class="band sleep" x="403.5" y="10" width="220.5" height="180"><title>Asleep · 22:00–07:00</title></rect>
-              <rect class="band dream" x="428" y="10" width="10" height="180"><title>Dreaming · about an hour after bedtime</title></rect>
-              <text class="lbl" x="36" y="10">Boredom</text>
-              <line class="axis" x1="36" y1="78" x2="624" y2="78" />
-              <line class="thr" x1="36" y1="35.8" x2="624" y2="35.8" /><text class="lbl tick" x="630" y="39">0.66</text>
-              <line class="thr" x1="36" y1="58.8" x2="624" y2="58.8" /><text class="lbl tick" x="630" y="62">0.30</text>
-              <path class="ln bored" d="M36.0 58.8L42.1 57.6L48.2 56.4L54.4 55.2L60.5 54.1L66.6 52.9L72.8 51.9L78.9 50.8L85.0 49.8L91.1 48.8L97.2 47.9L103.4 46.9L109.5 46.0L115.6 45.1L121.8 44.3L127.9 43.4L134.0 42.6L140.1 41.8L146.2 41.1L152.4 40.3L158.5 39.6L164.6 38.9L170.8 38.2L176.9 37.5L183.0 36.9L189.1 36.2L195.2 35.6L201.4 35.0L201.4 40.2L207.5 39.4L207.5 44.8L207.5 50.1L213.6 49.1L213.6 54.9L219.8 53.8L219.8 60.7L225.9 59.4L232.0 58.2L238.1 57.0L244.2 55.8L250.4 54.6L256.5 53.5L262.6 52.4L268.8 51.3L274.9 50.3L281.0 49.3L287.1 48.3L293.2 47.4L299.4 46.5L305.5 45.6L311.6 44.7L317.8 43.8L323.9 43.0L330.0 42.2L336.1 41.4L342.2 40.7L348.4 40.0L354.5 39.2L360.6 38.5L366.8 37.9L372.9 37.2L379.0 36.6L385.1 35.9L385.1 42.1L391.2 41.4L391.2 47.8L397.4 46.9L397.4 53.8L397.4 60.7L403.5 59.4L409.6 59.7L415.8 59.9L421.9 60.1L428.0 60.3L434.1 60.6L440.2 60.8L446.4 61.0L452.5 61.2L458.6 61.4L464.8 61.6L470.9 61.8L477.0 62.0L483.1 62.2L489.2 62.4L495.4 62.6L501.5 62.8L507.6 63.0L513.8 63.2L519.9 63.4L526.0 63.5L532.1 63.7L538.2 63.9L544.4 64.1L550.5 64.2L556.6 64.4L562.8 64.6L568.9 64.7L575.0 64.9L581.1 65.1L587.2 65.2L593.4 65.4L599.5 65.6L605.6 65.7L611.8 65.9L617.9 66.0L624.0 66.2" />
-              <text class="lbl" x="36" y="118">Energy</text>
-              <line class="axis" x1="36" y1="186" x2="624" y2="186" />
-              <text class="lbl tick" x="630" y="126">120</text><text class="lbl tick" x="630" y="190">0</text>
-              <path class="ln energy" d="M36.0 122.0L42.1 122.0L48.2 122.0L54.4 122.0L60.5 122.0L66.6 122.0L72.8 122.0L78.9 122.0L85.0 122.0L91.1 122.0L97.2 122.0L103.4 122.0L109.5 122.0L115.6 122.0L121.8 122.0L127.9 122.0L134.0 122.0L140.1 122.0L146.2 122.0L152.4 122.0L158.5 122.0L164.6 122.0L170.8 122.0L176.9 122.0L183.0 122.0L189.1 122.0L195.2 122.0L195.2 123.1L201.4 123.1L201.4 125.2L207.5 125.2L207.5 127.3L207.5 128.4L207.5 130.5L213.6 130.5L213.6 132.7L219.8 132.7L219.8 134.8L225.9 134.8L232.0 134.8L238.1 134.8L244.2 134.8L250.4 134.8L256.5 134.8L262.6 134.8L268.8 134.8L274.9 134.8L281.0 134.8L287.1 134.8L293.2 134.8L299.4 134.8L305.5 134.8L311.6 134.8L317.8 134.8L323.9 134.8L330.0 134.8L336.1 134.8L342.2 134.8L348.4 134.8L354.5 134.8L360.6 134.8L366.8 134.8L372.9 134.8L379.0 134.8L379.0 135.9L385.1 135.9L385.1 138.0L391.2 138.0L391.2 140.1L391.2 141.2L397.4 141.2L397.4 143.3L397.4 145.5L403.5 145.5L409.6 143.1L415.8 140.8L421.9 138.5L428.0 136.2L434.1 133.9L440.2 131.5L446.4 129.2L452.5 126.9L458.6 124.6L464.8 122.3L470.9 122.0L477.0 122.0L483.1 122.0L489.2 122.0L495.4 122.0L501.5 122.0L507.6 122.0L513.8 122.0L519.9 122.0L526.0 122.0L532.1 122.0L538.2 122.0L544.4 122.0L550.5 122.0L556.6 122.0L562.8 122.0L568.9 122.0L575.0 122.0L581.1 122.0L587.2 122.0L593.4 122.0L599.5 122.0L605.6 122.0L611.8 122.0L617.9 122.0L624.0 122.0" />
-              <g class="lbl tick xt"><text x="36" y="206">07:00</text><text x="158.5" y="206">12:00</text><text x="305.5" y="206">18:00</text><text x="403.5" y="206">22:00</text><text x="526" y="206">03:00</text><text x="624" y="206">07:00</text></g>
+            <svg class="dp-day" viewBox="-14 0 674 250" role="img" aria-labelledby="dp-day-t">
+              <title id="dp-day-t">A real day of Pip's on 10 October: boredom rises to 0.66 twice and drops during two exploring sessions, then decays overnight; energy falls from 120 to 43 and refills during sleep.</title>
+              <g class="band explore"><rect x="201" y="22" width="33.5" height="200"><title>Exploring · 13:44–15:06, six reads</title></rect><rect x="363.5" y="22" width="15.1" height="200"><title>Exploring · 20:22–20:59, six reads</title></rect></g>
+              <rect class="band sleep" x="406.8" y="22" width="217.2" height="200"><title>Asleep · 22:08–07:00</title></rect>
+              <rect class="band dream" x="429.7" y="22" width="4" height="200"><title>Dreaming · 23:08</title></rect>
+              <line class="axis" x1="36" y1="222" x2="624" y2="222" />
+              <line class="thr" x1="36" y1="90.0" x2="624" y2="90.0" />
+              <line class="thr" x1="36" y1="162.0" x2="624" y2="162.0" />
+              <g class="lbl tick yl"><text x="30" y="25">1</text><text x="30" y="93.0">0.66</text><text x="30" y="165.0">0.30</text><text x="30" y="225">0</text></g>
+              <g class="lbl tick yr"><text x="630" y="25">120</text><text x="630" y="225">0</text></g>
+              <line class="ln bored" x1="-12" y1="8" x2="0" y2="8" /><text class="lbl" x="4" y="12">Boredom</text>
+              <line class="ln energy" x1="648" y1="8" x2="660" y2="8" /><text class="lbl" x="644" y="12" text-anchor="end">Energy</text>
+              <path class="ln energy" d="M36.0 22.0L38.0 22.0L43.4 22.0L49.9 22.0L56.4 22.0L61.3 22.0L63.0 23.7L67.0 23.7L72.3 23.7L76.8 23.7L80.9 23.7L86.2 23.7L90.7 23.7L98.9 23.7L104.2 23.7L109.9 23.7L115.2 23.7L126.2 23.7L130.3 23.7L135.6 23.7L141.3 23.7L147.5 23.7L154.0 23.7L158.1 23.7L162.2 23.7L166.7 23.7L172.0 23.7L176.1 23.7L180.1 23.7L185.0 23.7L190.8 23.7L201.0 23.7L210.4 30.3L223.0 37.0L225.5 43.7L227.1 57.0L228.7 63.7L231.6 77.0L234.4 83.7L239.8 83.7L246.7 83.7L252.8 83.7L257.7 83.7L266.3 83.7L274.5 83.7L279.0 83.7L283.9 83.7L292.4 83.7L300.6 83.7L304.7 83.7L309.6 83.7L316.1 83.7L321.0 83.7L328.4 83.7L332.9 83.7L337.4 83.7L345.5 83.7L349.6 83.7L354.9 83.7L359.4 83.7L363.5 83.7L364.3 97.0L364.7 97.0L364.7 103.7L365.1 110.3L365.1 117.0L365.5 117.0L365.5 123.7L365.9 123.7L365.9 130.3L373.7 143.7L378.6 150.3L384.3 150.3L389.2 150.3L395.3 150.3L399.8 150.3L406.8 150.3L410.9 145.3L414.9 140.3L419.0 135.3L423.1 130.3L427.2 125.3L431.3 122.0L432.5 128.7L432.5 145.3L438.6 137.0L442.7 133.7L449.6 125.3L456.2 117.0L466.4 105.3L473.3 97.0L481.5 87.0L490.5 77.0L497.8 67.0L504.8 60.3L509.7 53.7L519.5 42.0L524.8 35.3L529.7 30.3L539.9 22.0L546.8 22.0L554.6 22.0L558.7 22.0L562.8 22.0L566.8 22.0L570.9 22.0L575.0 22.0L579.1 22.0L583.6 22.0L590.5 22.0L596.6 22.0L601.1 22.0L605.2 22.0L610.1 22.0L616.2 22.0L622.8 22.0L624.0 22.0" />
+              <path class="ln bored" d="M36.0 159.9L38.0 160.2L43.4 157.0L49.9 153.2L56.4 149.2L61.3 146.4L63.0 145.4L67.0 143.2L72.3 140.4L76.8 138.0L80.9 135.8L86.2 133.0L90.7 130.8L98.9 126.8L104.2 124.4L109.9 121.6L115.2 119.2L126.2 114.6L130.3 112.8L135.6 110.6L141.3 108.4L147.5 106.2L154.0 103.6L158.1 102.0L162.2 100.6L166.7 99.0L172.0 97.2L176.1 95.8L180.1 94.4L185.0 92.8L190.8 91.0L201.0 87.8L210.4 85.2L223.0 92.0L225.5 94.8L227.1 120.8L228.7 131.0L231.6 137.6L234.4 143.0L239.8 140.2L246.7 136.4L252.8 133.2L257.7 131.0L266.3 126.6L274.5 122.8L279.0 120.8L283.9 118.6L292.4 115.0L300.6 111.6L304.7 109.8L309.6 107.8L316.1 105.4L321.0 103.6L328.4 100.8L332.9 99.4L337.4 97.8L345.5 95.0L349.6 93.6L354.9 92.0L359.4 90.4L363.5 89.2L364.3 94.2L364.7 94.2L364.7 102.2L365.1 102.0L365.1 114.2L365.5 114.0L365.9 114.0L365.9 118.2L373.7 126.0L378.6 136.0L384.3 133.0L389.2 130.6L395.3 127.6L399.8 125.6L406.8 122.2L410.9 123.0L414.9 123.8L419.0 124.6L423.1 125.4L427.2 126.2L431.3 127.0L432.5 127.2L438.6 128.4L442.7 129.2L449.6 130.6L456.2 131.8L466.4 133.6L473.3 134.8L481.5 136.4L490.5 137.8L497.8 139.2L504.8 140.2L509.7 141.0L519.5 142.6L524.8 143.6L529.7 144.4L539.9 146.0L546.8 147.0L554.6 148.2L558.7 148.8L562.8 149.4L566.8 150.0L570.9 150.6L575.0 151.2L579.1 151.8L583.6 152.4L590.5 153.4L596.6 154.2L601.1 154.8L605.2 155.4L610.1 156.0L616.2 156.8L622.8 157.8L624.0 157.9" />
+              <g class="lbl tick xt"><text x="36" y="242">07:00</text><text x="158.5" y="242">12:00</text><text x="305.5" y="242">18:00</text><text x="403.5" y="242">22:00</text><text x="526" y="242">03:00</text><text x="624" y="242">07:00</text></g>
             </svg>
             <figcaption>
               <ul class="dp-key"><li><i class="k-explore"></i>exploring</li><li><i class="k-sleep"></i>asleep</li><li><i class="k-dream"></i>dreaming</li></ul>
-              <span class="dp-cap">A day simulated from the pet's own equations, using the settings of my pet, Pip.</span>
+              <span class="dp-cap">A real day in the life of my pet, Pip: 10 October, from its own records.</span>
             </figcaption>
           </figure>
         </div>
