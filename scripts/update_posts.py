@@ -1,11 +1,33 @@
 """Fetch the latest Medium posts and write them to posts.json for index.html."""
+import html
 import json
+import re
 import urllib.request
 import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
 
 FEED_URL = "https://medium.com/feed/@wei.rui828"
-MAX_POSTS = 5
+MAX_POSTS = 4
+SUMMARY_CHARS = 170
+CONTENT = "{http://purl.org/rss/1.0/modules/content/}encoded"
+
+
+def summary(body):
+    """The article's opening paragraphs, trimmed at a word boundary."""
+    paras = [html.unescape(re.sub(r"<[^>]+>", "", p)).strip() for p in re.findall(r"<p>(.*?)</p>", body, re.S)]
+    text = ""
+    for p in filter(None, paras):
+        text = f"{text} {p}".strip()
+        if len(text) >= 120:
+            break
+    if len(text) <= SUMMARY_CHARS:
+        return text
+    return text[:SUMMARY_CHARS].rsplit(" ", 1)[0].rstrip(",;:—-") + "…"
+
+
+def tag_name(slug):
+    return slug.replace("-", " ").title()
+
 
 req = urllib.request.Request(FEED_URL, headers={"User-Agent": "Mozilla/5.0"})
 with urllib.request.urlopen(req, timeout=30) as resp:
@@ -17,6 +39,8 @@ for item in root.iter("item"):
         "title": item.findtext("title").strip(),
         "link": item.findtext("link").split("?")[0],
         "date": parsedate_to_datetime(item.findtext("pubDate")).strftime("%Y-%m-%d"),
+        "summary": summary(item.findtext(CONTENT) or ""),
+        "tags": [tag_name(c.text) for c in item.findall("category")][:2],
     })
 
 with open("posts.json", "w", encoding="utf-8") as f:

@@ -353,28 +353,31 @@
       color: var(--muted);
     }
 
-    /* Writing */
-    .posts { list-style: none; overflow: hidden; }
-    .posts li + li { border-top: 1px solid var(--line); }
-    .posts a {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 16px;
-      padding: 16px 20px;
-      text-decoration: none;
-      transition: background .2s ease;
-    }
-    .posts a:hover { background: var(--glass-hover); }
-    .posts a:hover .title { color: #fff; }
-    .posts .title { font-weight: 500; color: var(--text); }
-    .posts .date {
-      flex-shrink: 0;
-      font-size: 0.8125rem;
+    /* Writing: article cards in the same grid as Projects, glowing cyan */
+    .post .date {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       color: var(--faint);
-      font-variant-numeric: tabular-nums;
     }
-    .posts .empty { padding: 16px 20px; color: var(--muted); }
+    .post h3 {
+      margin-top: 8px;
+      font-size: 1.0625rem;
+      line-height: 1.35;
+    }
+    .post p {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-size: 0.875rem;
+    }
+    .post:hover,
+    .post:focus-visible {
+      box-shadow: 0 0 0 1px rgba(34, 211, 238, .4), 0 10px 40px -10px rgba(34, 211, 238, .45);
+    }
+    .posts .empty { color: var(--muted); }
 
     /* Photography */
     /* Justified gallery: rows wrap and fill the width; photos in a row share a height and keep their
@@ -671,9 +674,9 @@
       <div class="section-head">
         <a class="more" href="https://medium.com/@wei.rui828" target="_blank" rel="noopener">More on Medium →</a>
       </div>
-      <ul class="glass posts" id="posts">
-        <li class="empty">Loading posts…</li>
-      </ul>
+      <div class="projects posts" id="posts">
+        <p class="empty">Loading posts…</p>
+      </div>
     </section>
 
     <section id="photography" role="tabpanel" aria-labelledby="tab-photography" hidden>
@@ -816,24 +819,29 @@
         if (!res.ok) throw new Error(res.status);
         const posts = await res.json();
         const fmt = new Intl.DateTimeFormat("en", { month: "short", year: "numeric" });
-        list.replaceChildren(...posts.map(({ title, link, date }) => {
-          const li = document.createElement("li");
-          const a = document.createElement("a");
+        const el = (tag, className, text) => {
+          const node = document.createElement(tag);
+          if (className) node.className = className;
+          if (text) node.textContent = text;
+          return node;
+        };
+        list.replaceChildren(...posts.slice(0, 4).map(({ title, link, date, summary, tags = [] }) => {
+          const a = el("a", "glass project post");
           a.href = link;
           a.target = "_blank";
           a.rel = "noopener";
-          const t = document.createElement("span");
-          t.className = "title";
-          t.textContent = title;
-          const d = document.createElement("span");
-          d.className = "date";
-          d.textContent = fmt.format(new Date(date + "T00:00:00"));
-          a.append(t, d);
-          li.append(a);
-          return li;
+          const tagList = el("ul", "tags");
+          tagList.append(...tags.map(t => el("li", "", t)));
+          a.append(
+            el("span", "date", fmt.format(new Date(date + "T00:00:00"))),
+            el("h3", "", title),
+            el("p", "", summary || ""),
+            tagList,
+          );
+          return a;
         }));
       } catch {
-        list.innerHTML = '<li class="empty">Read my posts on <a href="https://medium.com/@wei.rui828">Medium</a>.</li>';
+        list.innerHTML = '<p class="empty">Read my posts on <a href="https://medium.com/@wei.rui828">Medium</a>.</p>';
       }
     })();
 
