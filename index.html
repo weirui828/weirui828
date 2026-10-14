@@ -252,7 +252,11 @@
       transform: scale(1.5);
       animation: twinkle 2.4s ease-in-out infinite;
     }
-    #tab-journey[aria-selected="true"] .star { background: linear-gradient(90deg, var(--cyan), var(--gold)); }
+    /* Wandering: rose → teal, blended around the colour wheel (oklch) so the middle stays vivid */
+    #tab-journey[aria-selected="true"] .star {
+      background: linear-gradient(90deg, #f472b6, #2dd4bf);
+      background: linear-gradient(90deg in oklch, #f472b6, #2dd4bf);
+    }
     @keyframes twinkle { 50% { box-shadow: 0 0 4px var(--c), 0 0 11px var(--c); } }
     /* The Dipper's handle: three faint stars kept for future tabs */
     .spare .star {
@@ -1747,7 +1751,7 @@
     // The four bowl stars are the tabs; the handle's three stars wait for future tabs.
     const DIPPER = [[77, 34], [74, 95], [156, 126], [190, 88], [250, 100], [297, 112], [334, 176]];
     const SEGMENTS = [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [4, 5], [5, 6]];
-    const TAB_COLORS = { "tab-projects": "var(--violet)", "tab-writing": "var(--cyan)", "tab-photography": "var(--gold)", "tab-journey": "var(--cyan)" };
+    const TAB_COLORS = { "tab-projects": "var(--violet)", "tab-writing": "var(--cyan)", "tab-photography": "var(--gold)", "tab-journey": "#f472b6" };
     const skyLines = nav.querySelector(".sky-lines");
     const starItems = [...nav.querySelectorAll("li")];
     starItems.forEach((li, i) => { li.style.setProperty("--x", `${DIPPER[i][0]}px`); li.style.setProperty("--y", `${DIPPER[i][1]}px`); });
