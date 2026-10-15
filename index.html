@@ -30,8 +30,8 @@
     :root {
       --bg: #05060f;
       --text: #e8ebff;
-      --muted: #8d93b8;
-      --faint: #5b6087;
+      --muted: #9ba1c5;
+      --faint: #777ca3;
       --glass: rgba(255, 255, 255, .04);
       --glass-hover: rgba(255, 255, 255, .07);
       --line: rgba(255, 255, 255, .09);
@@ -502,13 +502,13 @@
       color: var(--violet);
     }
     .dp-hero h3 {
-      margin-top: 4px;
       font-family: "Space Grotesk", sans-serif;
-      font-size: 2rem;
-      font-weight: 700;
-      line-height: 1.1;
+      font-size: 1.625rem;
+      font-weight: 600;
+      line-height: 1.25;
     }
-    .dp-lede { margin-top: 10px; color: var(--muted); }
+    .dp-lede { margin-top: 12px; color: var(--muted); }
+    .dp-lede strong { font-family: "Space Grotesk", sans-serif; font-weight: 700; color: var(--text); }
 
     .dp-block { padding: 24px; }
     .dp-kicker span { margin-right: 10px; color: var(--faint); }
@@ -749,7 +749,7 @@
 
     @media (max-width: 600px) {
       .dp-hero { padding: 22px; }
-      .dp-hero h3 { font-size: 1.75rem; }
+      .dp-hero h3 { font-size: 1.375rem; }
       .dp-block { padding: 20px; }
       .dp-pair, .dp-reel { grid-template-columns: 1fr; }
       .dp-day .lbl { font-size: 17px; }
@@ -1064,14 +1064,14 @@
       <article class="dp">
         <header class="glass dp-hero">
           <div class="dp-intro">
-            <h3>Dream Pet</h3>
-            <p class="dp-lede">An AI pet with an inner life. Your pet gets bored, wanders off to read the web about whatever it's curious about, and at night turns what it read into a dream, every scene traceable to a page it really read.</p>
+            <h3>We all dream. Ever wondered how AI dreams?</h3>
+            <p class="dp-lede">Meet <strong>Dream Pet</strong>, an AI pet with an inner life. Your pet gets bored, wanders off to read the web about whatever it's curious about, and at night turns what it read into a dream, every scene traceable to a page it really read.</p>
           </div>
         </header>
 
         <div class="glass dp-block">
           <p class="dp-kicker"><span>01</span>Drives</p>
-          <p>Nobody tells the pet to explore. Boredom creeps up while it's awake, and once it passes 0.66 the pet goes off to read. Every satisfying page pulls boredom back down, and the session ends once it's satisfied or has read its fill. Searching and reading cost energy, and sleep brings it back. Bedtime is 22:00, and once a night it dreams.</p>
+          <p>Nobody tells the pet to explore. Boredom creeps up while it's awake, and once it passes a threshold the pet goes off to read. Every satisfying page pulls boredom back down, and it stops once it's satisfied or has read enough pages. Searching and reading cost energy, and sleep brings it back.</p>
           <figure class="dp-fig">
             <svg class="dp-day" viewBox="-14 0 674 250" role="img" aria-labelledby="dp-day-t">
               <title id="dp-day-t">A real day of Pip's on 10 October: boredom rises to 0.66 twice and drops during two exploring sessions, then decays overnight; energy falls from 120 to 43 and refills during sleep.</title>
@@ -1091,14 +1091,14 @@
             </svg>
             <figcaption>
               <ul class="dp-key"><li><i class="k-explore"></i>exploring</li><li><i class="k-sleep"></i>asleep</li><li><i class="k-dream"></i>dreaming</li></ul>
-              <span class="dp-cap">A real day in the life of my pet, Pip: 10 October, from its own records.</span>
+              <span class="dp-cap">A real day in the life of my pet, Pip.</span>
             </figcaption>
           </figure>
         </div>
 
         <div class="glass dp-block">
           <p class="dp-kicker"><span>02</span>Curiosity</p>
-          <p>Before opening a page, the pet writes down what it expects the page to say. How far the guess lands from the real thing is its <em>surprise</em>. It enjoys moderate surprise most, because a page it predicted perfectly teaches nothing and a page it can't make sense of is just noise. Topics where its guesses keep getting better pull it back, and reading the same topic again pays a little less each time.</p>
+          <p>Like us, the pet enjoys a good surprise, but not too much. Before it opens a page, it guesses what the page will say. If the guess is exactly right, it learns nothing. If the page makes no sense at all, it learns nothing either. The best pages are the ones that are a little different from what it expected. And like any of us, it gets less excited about the same topic each time it comes back to it.</p>
           <div class="dp-pair">
             <figure class="dp-fig">
               <svg viewBox="0 0 290 140" role="img" aria-labelledby="dp-rw-t">
@@ -1127,7 +1127,7 @@
 
         <div class="glass dp-block">
           <p class="dp-kicker"><span>03</span>Dreams</p>
-          <p>At night the pet picks the memories that mattered, wanders from each to related-but-different ones, and weaves a short surreal dream. A critic sends drafts back if any scene isn't built from a real memory. Then a screenwriter turns the dream into a 10-second film script, ready to render with a video model.</p>
+          <p>At night the pet picks the memories that mattered, wanders from one to another, and weaves a short surreal dream. A critic sends drafts back if any scene isn't built from a real memory. Then a screenwriter turns the dream into a 10-second film script, ready to render with a video model.</p>
           <div class="dp-dream">
             <div class="dp-film dp-film-main">
               <video src="https://weirui828.github.io/media/dreams/sovereigns-ghost.mp4" poster="https://weirui828.github.io/media/dreams/sovereigns-ghost.jpg" muted loop playsinline preload="none" aria-label="The Sovereign's Ghost, a 10-second film of the dream"></video>
