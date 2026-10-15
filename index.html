@@ -752,32 +752,94 @@
       color: var(--rose);
     }
     .post-feature:hover .post-read { text-decoration: underline; }
-    .post-rows { list-style: none; padding: 6px 0; }
-    .post-rows li + li { border-top: 1px solid var(--line); }
-    .post-row {
-      display: grid;
-      grid-template-columns: 92px 1fr auto;
-      align-items: baseline;
-      gap: 16px;
-      padding: 14px 24px;
-      text-decoration: none;
-      transition: background .2s ease;
+    /* The other posts: separate cards showing a fading first line of the summary. A click unfolds the
+       rest; losing focus folds it straight back, since only the featured post stays open. */
+    .post-card {
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
     }
-    .post-row time { font-size: 0.8125rem; color: var(--faint); }
-    .post-row .t { font-size: 0.9375rem; font-weight: 500; transition: color .2s ease; }
-    .post-row .arrow { color: var(--faint); transition: transform .2s ease, color .2s ease; }
-    .post-row:hover,
-    .post-row:focus-visible { background: var(--glass-hover); outline: none; }
-    .post-row:hover .t, .post-row:focus-visible .t { color: #fbcfe8; }
-    .post-row:hover .arrow, .post-row:focus-visible .arrow { color: var(--rose); transform: translateX(4px); }
-    .post-rows li:first-child .post-row { border-radius: var(--radius) var(--radius) 0 0; }
-    .post-rows li:last-child .post-row { border-radius: 0 0 var(--radius) var(--radius); }
+    .post-card:hover,
+    .post-card:focus-within,
+    .post-card.is-open {
+      background: var(--glass-hover);
+      box-shadow: 0 0 0 1px rgba(244, 114, 182, .4), 0 10px 40px -10px rgba(244, 114, 182, .45);
+    }
+    .post-card:hover:not(.is-open) { transform: translateY(-4px); }
+    .post-toggle {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 4px 16px;
+      width: 100%;
+      padding: 18px 24px 0;
+      border: 0;
+      background: none;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .post-toggle:focus-visible { outline: none; }
+    .post-toggle time {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+    .post-toggle .t {
+      grid-column: 1;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.0625rem;
+      font-weight: 600;
+      line-height: 1.35;
+      transition: color .2s ease;
+    }
+    .post-card:hover .t, .post-card.is-open .t { color: #fbcfe8; }
+    /* a small plus that turns into a cross while the card is open */
+    .post-toggle .pm {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      align-self: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 20px;
+      text-align: center;
+      transition: transform .25s ease, color .2s ease, border-color .2s ease;
+    }
+    .post-card:hover .pm { color: var(--rose); border-color: rgba(244, 114, 182, .5); }
+    .post-card.is-open .pm { transform: rotate(45deg); color: var(--rose); border-color: rgba(244, 114, 182, .5); }
+    .post-more {
+      max-height: 1.65em;
+      margin: 8px 24px 18px;
+      overflow: hidden;
+      cursor: pointer;
+      -webkit-mask-image: linear-gradient(90deg, #000 30%, transparent 92%);
+      mask-image: linear-gradient(90deg, #000 30%, transparent 92%);
+      transition: max-height .35s ease;
+    }
+    .post-more p {
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-size: 0.9375rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+    .post-more .post-read { margin-top: 12px; }
+    .post-card.is-open .post-more {
+      max-height: 16em;
+      cursor: auto;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
     .posts .empty { color: var(--muted); }
     @media (max-width: 600px) {
       .post-feature { padding: 22px; }
       .post-feature h3 { font-size: 1.25rem; }
-      .post-row { grid-template-columns: 1fr auto; gap: 4px 12px; padding: 14px 18px; }
-      .post-row time { grid-column: 1 / -1; }
+      .post-toggle { padding: 16px 18px 0; }
+      .post-more { margin: 8px 18px 16px; }
     }
 
     /* Photography */
@@ -1383,16 +1445,59 @@
         if (latest.summary) feature.append(el("p", "post-sum", latest.summary));
         feature.append(el("span", "post-read", "Read on Medium →"));
 
-        // Older posts as quiet rows
-        const rows = el("ul", "glass post-rows");
-        rows.append(...older.map(({ title, link: href, date }) => {
-          const a = link("post-row", href);
-          a.append(time(date), el("span", "t", title), el("span", "arrow", "→"));
-          const li = el("li");
-          li.append(a);
-          return li;
-        }));
-        list.replaceChildren(feature, ...(older.length ? [rows] : []));
+        // The other posts: cards that unfold their summary on click
+        const cards = older.map(({ title, link: href, date, summary }, i) => {
+          const card = el("article", "glass post-card");
+          const toggle = el("button", "post-toggle");
+          toggle.type = "button";
+          toggle.setAttribute("aria-expanded", "false");
+          toggle.setAttribute("aria-controls", `post-more-${i}`);
+          toggle.append(time(date), el("span", "t", title), el("span", "pm", "+"));
+          toggle.lastChild.setAttribute("aria-hidden", "true");
+          const more = el("div", "post-more");
+          more.id = `post-more-${i}`;
+          more.inert = true;                      // the faded peek isn't focusable until it's open
+          if (summary) more.append(el("p", "", summary));
+          more.append(link("post-read", href));
+          more.lastChild.textContent = "Read on Medium →";
+          card.append(toggle, more);
+          return card;
+        });
+        const fold = card => {
+          if (!card?.classList.contains("is-open")) return;
+          card.classList.remove("is-open");
+          card.querySelector(".post-toggle").setAttribute("aria-expanded", "false");
+          card.querySelector(".post-more").inert = true;
+        };
+        const unfold = card => {
+          cards.forEach(c => c !== card && fold(c));
+          card.classList.add("is-open");
+          card.querySelector(".post-toggle").setAttribute("aria-expanded", "true");
+          card.querySelector(".post-more").inert = false;
+        };
+        const openCard = () => cards.find(c => c.classList.contains("is-open"));
+        cards.forEach(card => {
+          card.querySelector(".post-toggle").addEventListener("click", () =>
+            card.classList.contains("is-open") ? fold(card) : unfold(card));
+          card.querySelector(".post-more").addEventListener("click", () => unfold(card));
+          // Tabbing to anything outside the card folds it
+          card.addEventListener("focusout", e => {
+            if (e.relatedTarget && !card.contains(e.relatedTarget)) fold(card);
+          });
+        });
+        // So do a click or tap anywhere else, Escape, and leaving the browser tab
+        document.addEventListener("pointerdown", e => {
+          const card = openCard();
+          if (card && !card.contains(e.target)) fold(card);
+        });
+        document.addEventListener("keydown", e => {
+          if (e.key !== "Escape" || !openCard()) return;
+          const card = openCard();
+          fold(card);
+          card.querySelector(".post-toggle").focus();
+        });
+        document.addEventListener("visibilitychange", () => document.hidden && fold(openCard()));
+        list.replaceChildren(feature, ...cards);
       } catch {
         list.innerHTML = '<p class="empty">Read my posts on <a href="https://medium.com/@wei.rui828">Medium</a>.</p>';
       }
