@@ -404,6 +404,11 @@
     section { padding: 40px 0 8px; animation: fade-in .4s ease; }
     section[hidden] { display: none; }
     @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } }
+    /* A swiped-to panel slides in from the side the finger came from */
+    section.from-right { animation-name: from-right; }
+    section.from-left { animation-name: from-left; }
+    @keyframes from-right { from { opacity: 0; transform: translateX(40px); } }
+    @keyframes from-left { from { opacity: 0; transform: translateX(-40px); } }
 
     .section-head {
       display: flex;
@@ -2472,11 +2477,13 @@
       nav.style.setProperty("--reach", `${cx(tab) - first}px`);
     }
 
-    function selectTab(tab, { focus = false, updateHash = true } = {}) {
+    function selectTab(tab, { focus = false, updateHash = true, from = null } = {}) {
       tabs.forEach((t, i) => {
         const on = t === tab;
         t.setAttribute("aria-selected", on);
         t.tabIndex = on ? 0 : -1;
+        panels[i].classList.remove("from-left", "from-right");
+        if (on && from) panels[i].classList.add(`from-${from}`);
         panels[i].hidden = !on;
       });
       if (focus) tab.focus();
@@ -2510,6 +2517,30 @@
     const current = () => tabs.find(t => t.getAttribute("aria-selected") === "true");
     document.fonts?.ready.then(() => lightUp(current()));
     addEventListener("resize", () => lightUp(current()));
+
+    // On touch screens, a quick sideways swipe across the content moves to the next or previous tab.
+    // Not on the map (it pans with a finger), and not from the screen edges, which the browser
+    // uses for back and forward.
+    const content = document.querySelector("main");
+    let swipe = null;
+    content.addEventListener("touchstart", e => {
+      const t = e.touches[0];
+      swipe = e.touches.length === 1 && !e.target.closest("canvas, input")
+        && t.clientX > 24 && t.clientX < innerWidth - 24
+        ? { x: t.clientX, y: t.clientY, at: e.timeStamp } : null;
+    }, { passive: true });
+    content.addEventListener("touchcancel", () => { swipe = null; });
+    content.addEventListener("touchend", e => {
+      if (!swipe) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - swipe.x, dy = t.clientY - swipe.y;
+      const quick = e.timeStamp - swipe.at < 700;
+      swipe = null;
+      if (!quick || Math.abs(dx) < 60 || Math.abs(dx) < 2 * Math.abs(dy)) return;
+      if (String(getSelection()).trim()) return;   // selecting text, not swiping
+      const next = tabs[tabs.indexOf(current()) + (dx < 0 ? 1 : -1)];
+      if (next) selectTab(next, { from: dx < 0 ? "right" : "left" });
+    });
     // A shared #tab link opens with the tabs in view
     if (initial !== tabs[0] || location.hash) {
       addEventListener("load", () => scrollTo({ top: tabsTop() }));
