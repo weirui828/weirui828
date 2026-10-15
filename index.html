@@ -433,57 +433,6 @@
       -webkit-backdrop-filter: blur(10px);
     }
 
-    /* Projects */
-    .projects {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-    @media (max-width: 600px) {
-      .projects { grid-template-columns: 1fr; }
-    }
-    .project {
-      display: flex;
-      flex-direction: column;
-      padding: 22px;
-      text-decoration: none;
-      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
-    }
-    .project:hover,
-    .project:focus-visible {
-      transform: translateY(-4px);
-      background: var(--glass-hover);
-      box-shadow: var(--glow);
-      outline: none;
-    }
-    .project .icon { font-size: 1.5rem; }
-    .project h3 {
-      margin-top: 10px;
-      font-family: "Space Grotesk", sans-serif;
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
-    .project p {
-      margin-top: 6px;
-      flex: 1;
-      font-size: 0.9375rem;
-      color: var(--muted);
-    }
-    .tags {
-      list-style: none;
-      margin-top: 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .tags li {
-      padding: 3px 9px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
     /* Building: a deep dive on Dream Pet */
     .dp { display: flex; flex-direction: column; gap: 14px; }
     .dp-hero { padding: 28px; }
@@ -757,31 +706,79 @@
       .dp-traits .fx { grid-column: 1 / -1; font-size: 0.8125rem; }
     }
 
-    /* Writing: article cards in the same grid as Projects, glowing rose */
-    .post .date {
+    /* Writing: one featured post as a big card, the others as quiet rows. Both glow rose. */
+    .posts { display: flex; flex-direction: column; gap: 14px; }
+    .post-feature {
+      display: block;
+      padding: 28px;
+      text-decoration: none;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .post-feature:hover,
+    .post-feature:focus-visible {
+      transform: translateY(-4px);
+      background: var(--glass-hover);
+      box-shadow: 0 0 0 1px rgba(244, 114, 182, .4), 0 10px 40px -10px rgba(244, 114, 182, .45);
+      outline: none;
+    }
+    .post-kicker {
       font-size: 0.75rem;
       font-weight: 600;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--faint);
+      color: var(--rose);
     }
-    .post h3 {
+    .post-kicker span { margin-left: 10px; color: var(--faint); }
+    .post-feature h3 {
       margin-top: 8px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .post-sum {
+      margin-top: 14px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
       font-size: 1.0625rem;
-      line-height: 1.35;
+      line-height: 1.65;
+      color: var(--muted);
     }
-    .post p {
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+    .post-read {
+      display: inline-block;
+      margin-top: 16px;
       font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--rose);
     }
-    .post:hover,
-    .post:focus-visible {
-      box-shadow: 0 0 0 1px rgba(244, 114, 182, .4), 0 10px 40px -10px rgba(244, 114, 182, .45);
+    .post-feature:hover .post-read { text-decoration: underline; }
+    .post-rows { list-style: none; padding: 6px 0; }
+    .post-rows li + li { border-top: 1px solid var(--line); }
+    .post-row {
+      display: grid;
+      grid-template-columns: 92px 1fr auto;
+      align-items: baseline;
+      gap: 16px;
+      padding: 14px 24px;
+      text-decoration: none;
+      transition: background .2s ease;
     }
+    .post-row time { font-size: 0.8125rem; color: var(--faint); }
+    .post-row .t { font-size: 0.9375rem; font-weight: 500; transition: color .2s ease; }
+    .post-row .arrow { color: var(--faint); transition: transform .2s ease, color .2s ease; }
+    .post-row:hover,
+    .post-row:focus-visible { background: var(--glass-hover); outline: none; }
+    .post-row:hover .t, .post-row:focus-visible .t { color: #fbcfe8; }
+    .post-row:hover .arrow, .post-row:focus-visible .arrow { color: var(--rose); transform: translateX(4px); }
+    .post-rows li:first-child .post-row { border-radius: var(--radius) var(--radius) 0 0; }
+    .post-rows li:last-child .post-row { border-radius: 0 0 var(--radius) var(--radius); }
     .posts .empty { color: var(--muted); }
+    @media (max-width: 600px) {
+      .post-feature { padding: 22px; }
+      .post-feature h3 { font-size: 1.25rem; }
+      .post-row { grid-template-columns: 1fr auto; gap: 4px 12px; padding: 14px 18px; }
+      .post-row time { grid-column: 1 / -1; }
+    }
 
     /* Photography */
     /* Justified gallery: rows wrap and fill the width; photos in a row share a height and keep their
@@ -1200,7 +1197,7 @@
       <div class="section-head">
         <a class="more" href="https://medium.com/@wei.rui828" target="_blank" rel="noopener">More on Medium →</a>
       </div>
-      <div class="projects posts" id="posts">
+      <div class="posts" id="posts">
         <p class="empty">Loading posts…</p>
       </div>
     </section>
@@ -1343,7 +1340,6 @@
         const res = await fetch("posts.json", { cache: "no-cache" });
         if (!res.ok) throw new Error(res.status);
         const posts = await res.json();
-        const fmt = new Intl.DateTimeFormat("en", { month: "short", year: "numeric" });
         const el = (tag, className, text) => {
           const node = document.createElement(tag);
           if (className) node.className = className;
@@ -1352,21 +1348,51 @@
         };
         // Only ever link to Medium, whatever ends up in posts.json
         const safe = link => /^https:\/\/medium\.com\//.test(link) ? link : "https://medium.com/@wei.rui828";
-        list.replaceChildren(...posts.slice(0, 4).map(({ title, link, date, summary, tags = [] }) => {
-          const a = el("a", "glass project post");
-          a.href = safe(link);
+        const link = (className, href) => {
+          const a = el("a", className);
+          a.href = safe(href);
           a.target = "_blank";
           a.rel = "noopener";
-          const tagList = el("ul", "tags");
-          tagList.append(...tags.map(t => el("li", "", t)));
-          a.append(
-            el("span", "date", fmt.format(new Date(date + "T00:00:00"))),
-            el("h3", "", title),
-            el("p", "", summary || ""),
-            tagList,
-          );
           return a;
+        };
+        // Dates read "Jun 11", with the year only when it isn't this year
+        const day = date => {
+          const d = new Date(date + "T00:00:00");
+          const opts = { month: "short", day: "numeric" };
+          if (d.getFullYear() !== new Date().getFullYear()) opts.year = "numeric";
+          return new Intl.DateTimeFormat("en", opts).format(d);
+        };
+        const time = date => {
+          const t = el("time", "", day(date));
+          t.dateTime = date;
+          return t;
+        };
+        // The post marked "featured" in posts.json leads (else the newest); the rest follow, newest first
+        const byDate = [...posts].sort((a, b) => b.date.localeCompare(a.date));
+        const latest = byDate.find(p => p.featured) || byDate[0];
+        if (!latest) throw new Error("no posts");
+        const older = byDate.filter(p => p !== latest);
+
+        // The featured post, with its summary
+        const feature = link("glass post-feature", latest.link);
+        const kicker = el("p", "post-kicker", latest.featured ? "Featured" : "Latest");
+        const when = el("span");
+        when.append(time(latest.date));
+        kicker.append(when);
+        feature.append(kicker, el("h3", "", latest.title));
+        if (latest.summary) feature.append(el("p", "post-sum", latest.summary));
+        feature.append(el("span", "post-read", "Read on Medium →"));
+
+        // Older posts as quiet rows
+        const rows = el("ul", "glass post-rows");
+        rows.append(...older.slice(0, 5).map(({ title, link: href, date }) => {
+          const a = link("post-row", href);
+          a.append(time(date), el("span", "t", title), el("span", "arrow", "→"));
+          const li = el("li");
+          li.append(a);
+          return li;
         }));
+        list.replaceChildren(feature, ...(older.length ? [rows] : []));
       } catch {
         list.innerHTML = '<p class="empty">Read my posts on <a href="https://medium.com/@wei.rui828">Medium</a>.</p>';
       }

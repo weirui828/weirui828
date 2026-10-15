@@ -1,42 +1,21 @@
 [
   {
+    "title": "How “Context Poisoning” is Rotting Your Codebase in the Age of AI",
+    "link": "https://medium.com/@wei.rui828/how-context-poisoning-is-rotting-your-codebase-in-the-age-of-ai-be7b082b69a9",
+    "date": "2025-12-22",
+    "featured": true,
+    "summary": "A simple analytics page took 15 seconds to load because one request fired over 200 database queries. The cause: AI coding assistants copy the patterns they see in your files, so one bad habit spreads with every new feature. How it happened, and the fix that brought it down to one query."
+  },
+  {
     "title": "A Software Engineer’s Intuition for Gradient Descent, Part 2: The Step Size",
     "link": "https://medium.com/@wei.rui828/a-software-engineers-intuition-for-gradient-descent-part-2-the-step-size-7ed33d42b0a8",
     "date": "2026-09-24",
-    "summary": "In Part 1 we built gradient descent around one simple rule: find the direction that goes downhill, and take a step that way.",
-    "tags": [
-      "Gradient Descent",
-      "Machine Learning"
-    ]
+    "summary": "Adam, RMSprop and Newton’s method all keep the same rule as plain gradient descent: step downhill. What they change is the step size: one number for everything, one number per parameter, or a full matrix. This post climbs that ladder one real problem at a time."
   },
   {
-    "title": "Tigers, Ghosting, and Bayes’ Theorem",
-    "link": "https://medium.com/@wei.rui828/tigers-ghosting-and-bayes-theorem-ae2c70c9364f",
-    "date": "2026-06-11",
-    "summary": "You jolt awake in the dark and hear a tiger roar. For about half a second, what you do next depends entirely on one thing: where you are. If you’re three nights into a…",
-    "tags": [
-      "Monty Hall",
-      "Machine Learning"
-    ]
-  },
-  {
-    "title": "Logistic Regression is Just Linear Regression with a Midlife Crisis",
-    "link": "https://medium.com/@wei.rui828/logistic-regression-is-just-linear-regression-with-a-midlife-crisis-38dfc980a72f",
-    "date": "2026-05-26",
-    "summary": "If you’ve been learning machine learning, you’ve probably experienced this exact frustration: a course smoothly explains Linear Regression, then classification arrives…",
-    "tags": [
-      "Logistic Regression",
-      "Machine Learning"
-    ]
-  },
-  {
-    "title": "Mastering the Precision-Recall Trade-Off: A Tale of Customer Support and Real Estate",
-    "link": "https://medium.com/@wei.rui828/mastering-the-precision-recall-trade-off-a-tale-of-customer-support-and-real-estate-318f863b7ded",
-    "date": "2026-05-20",
-    "summary": "If you are diving into machine learning, you’ve likely stumbled upon Precision and Recall. On paper, their mathematical definitions look straightforward. Yet, in…",
-    "tags": [
-      "Classification",
-      "Machine Learning"
-    ]
+    "title": "Forget the Formulas: An Intuitive Guide to Time Series Modeling (ARMA)",
+    "link": "https://medium.com/@wei.rui828/forget-the-formulas-an-intuitive-guide-to-time-series-modeling-arma-4e30ee08b276",
+    "date": "2026-04-28",
+    "summary": "Forget the Greek letters: an ARMA model is two forces. Inertia, where today follows yesterday, and echoes, where a past surprise keeps shaking the system for a while. Plus how to read the ACF and PACF plots to choose the model’s size."
   }
 ]
