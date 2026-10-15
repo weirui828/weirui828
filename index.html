@@ -210,6 +210,17 @@
       outline: none;
     }
     .socials svg { width: 19px; height: 19px; fill: currentColor; }
+    /* Opening a tab briefly lights the icon for where more of that tab's work lives, in the tab's
+       colour, then lets it fade back */
+    .socials a.flash { animation: social-flash 2.4s ease-out; }
+    @keyframes social-flash {
+      12% {
+        color: var(--lc);
+        border-color: color-mix(in srgb, var(--lc) 70%, transparent);
+        box-shadow: 0 0 12px color-mix(in srgb, var(--lc) 60%, transparent), 0 0 26px color-mix(in srgb, var(--lc) 30%, transparent);
+        transform: scale(1.08);
+      }
+    }
 
     /* ---------- Narrow screens: sidebar becomes a compact header ---------- */
     @media (max-width: 900px) {
@@ -418,8 +429,9 @@
       gap: 16px;
       margin-bottom: 18px;
     }
+    .more-end { margin-top: 28px; text-align: center; }
     .more {
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       font-weight: 600;
       color: var(--cyan);
       text-decoration: none;
@@ -1167,9 +1179,6 @@
 
       <main>
     <section id="building" role="tabpanel" aria-labelledby="tab-building">
-      <div class="section-head">
-        <a class="more" href="https://github.com/weirui828" target="_blank" rel="noopener">More on GitHub →</a>
-      </div>
 
       <article class="dp">
         <header class="glass dp-hero">
@@ -1304,21 +1313,17 @@
           </ul>
         </div>
       </article>
+      <p class="more-end"><a class="more" href="https://github.com/weirui828" target="_blank" rel="noopener">More on GitHub →</a></p>
     </section>
 
     <section id="writing" role="tabpanel" aria-labelledby="tab-writing" hidden>
-      <div class="section-head">
-        <a class="more" href="https://medium.com/@wei.rui828" target="_blank" rel="noopener">More on Medium →</a>
-      </div>
       <div class="posts" id="posts">
         <p class="empty">Loading posts…</p>
       </div>
+      <p class="more-end"><a class="more" href="https://medium.com/@wei.rui828" target="_blank" rel="noopener">More on Medium →</a></p>
     </section>
 
     <section id="capturing" role="tabpanel" aria-labelledby="tab-capturing" hidden>
-      <div class="section-head">
-        <a class="more" href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener">Follow on Instagram →</a>
-      </div>
       <div class="photos">
         <figure style="--ar: 1.804">
           <a class="photo" href="https://www.instagram.com/p/C0YJR4trBM1/" target="_blank" rel="noopener">
@@ -1339,6 +1344,7 @@
           </a>
         </figure>
       </div>
+      <p class="more-end"><a class="more" href="https://www.instagram.com/weiniverse_photography" target="_blank" rel="noopener">Follow on Instagram →</a></p>
     </section>
 
     <section id="wandering" role="tabpanel" aria-labelledby="tab-wandering" hidden>
@@ -2452,6 +2458,7 @@
     const DIPPER = [[77, 34], [74, 95], [156, 126], [190, 88], [250, 100], [297, 112], [334, 176]];
     const SEGMENTS = [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [4, 5], [5, 6]];
     const TAB_COLORS = { "tab-building": "var(--violet)", "tab-writing": "var(--rose)", "tab-capturing": "var(--emerald)", "tab-wandering": "var(--cyan)" };
+    const socials = [...document.querySelectorAll(".socials a")];
     const skyLines = nav.querySelector(".sky-lines");
     const starItems = [...nav.querySelectorAll("li")];
     starItems.forEach((li, i) => { li.style.setProperty("--x", `${DIPPER[i][0]}px`); li.style.setProperty("--y", `${DIPPER[i][1]}px`); });
@@ -2477,7 +2484,7 @@
       nav.style.setProperty("--reach", `${cx(tab) - first}px`);
     }
 
-    function selectTab(tab, { focus = false, updateHash = true, from = null } = {}) {
+    function selectTab(tab, { focus = false, updateHash = true, from = null, flash = true } = {}) {
       tabs.forEach((t, i) => {
         const on = t === tab;
         t.setAttribute("aria-selected", on);
@@ -2488,6 +2495,15 @@
       });
       if (focus) tab.focus();
       lightUp(tab);
+      // Briefly light the sidebar icon that goes where this tab's "More on…" link goes
+      const home = panels[tabs.indexOf(tab)].querySelector(".more-end a")?.href;
+      socials.forEach(a => {
+        a.classList.remove("flash");
+        if (!flash || a.href !== home) return;
+        a.style.setProperty("--lc", TAB_COLORS[tab.id]);
+        void a.offsetWidth;   // restart the animation if it's still running
+        a.classList.add("flash");
+      });
       journey.setVisible(tab.id === "tab-wandering");
       if (updateHash) history.replaceState(null, "", tab.getAttribute("href"));
       // If the tab bar is stuck to the top, bring the new panel's start into view
@@ -2512,7 +2528,7 @@
     const OLD = { "#projects": "#building", "#photography": "#capturing", "#journey": "#wandering" };
     const hash = OLD[location.hash] || location.hash;
     const initial = tabs.find(t => t.getAttribute("href") === hash) || tabs[0];
-    selectTab(initial, { updateHash: hash !== location.hash });
+    selectTab(initial, { updateHash: hash !== location.hash, flash: false });
     // Re-measure the star line once the web font has loaded and whenever the layout changes width
     const current = () => tabs.find(t => t.getAttribute("aria-selected") === "true");
     document.fonts?.ready.then(() => lightUp(current()));
