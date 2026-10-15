@@ -4,7 +4,7 @@
     "link": "https://medium.com/@wei.rui828/how-context-poisoning-is-rotting-your-codebase-in-the-age-of-ai-be7b082b69a9",
     "date": "2025-12-22",
     "featured": true,
-    "summary": "A simple analytics page took 15 seconds to load because one request fired over 200 database queries. The cause: AI coding assistants copy the patterns they see in your files, so one bad habit spreads with every new feature. How it happened, and the fix that brought it down to one query."
+    "summary": "A simple analytics page took 15 seconds to load because one request fired over 200 database queries. The cause: AI coding assistants copy the patterns they see in your codebase, so one bad habit spreads with every new feature, and over time it becomes disastrous.\nThis post walks through how it happened, and how one query fixed it."
   },
   {
     "title": "A Software Engineer’s Intuition for Gradient Descent, Part 2: The Step Size",
