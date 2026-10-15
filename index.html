@@ -1017,6 +1017,50 @@
     }
     .map-legend i.ring { background: none; border: 1.5px solid var(--c); }
     .map-legend[hidden], .map-zoom[hidden] { display: none; }
+    /* A place's story, opened by clicking a ✦ place on the visited map */
+    .place-story {
+      position: relative;
+      margin-top: 18px;
+      padding: 20px 56px 22px 24px;
+      box-shadow: 0 0 0 1px rgba(252, 211, 77, .28), 0 10px 40px -14px rgba(252, 211, 77, .35);
+      animation: fade-in .4s ease;
+    }
+    .place-story[hidden] { display: none; }
+    .place-story-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+    .place-story-head .nm {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #fcd34d;
+    }
+    .place-story-head .nm::before { content: "✦ "; font-size: .8em; }
+    .place-story-head .rg { font-size: 0.8125rem; color: var(--faint); }
+    .place-story-text {
+      margin-top: 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--muted);
+      white-space: pre-line;
+    }
+    .place-story-x {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: none;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 24px;
+      cursor: pointer;
+      transition: color .2s ease, border-color .2s ease;
+    }
+    .place-story-x:hover, .place-story-x:focus-visible { color: #fcd34d; border-color: rgba(252, 211, 77, .5); outline: none; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .map-zoom {
       position: absolute;
       right: 10px;
@@ -1315,6 +1359,13 @@
         <li><i style="--c: #22d3ee"></i>Lived</li>
         <li><i class="ring" style="--c: #a78bfa"></i>Next</li>
       </ul>
+      <!-- A few places hide a short story: hover shows a ✦ beside the name, a click opens it here -->
+      <div class="place-story glass" id="place-story" aria-live="polite" hidden>
+        <button class="place-story-x" type="button" aria-label="Close the story">×</button>
+        <p class="place-story-head"><span class="nm"></span><span class="rg"></span></p>
+        <p class="place-story-text"></p>
+      </div>
+      <ul class="sr-only" id="story-links" aria-label="Stories from the map"></ul>
     </section>
 
       </main>
@@ -1530,9 +1581,11 @@
         ["Macau", "Macau", "Macau", [113.55, 22.19]],
         ["Chongqing", "China", "China", [106.55, 29.56]],
         ["Guilin", "China", "China", [110.29, 25.27]],
+        ["Yangshuo", "China", "China", [110.49, 24.78]],
         ["Guiyang", "China", "China", [106.63, 26.65]],
         ["Beijing", "China", "China", [116.40, 39.90]],
         ["Nanchang", "China", "China", [115.86, 28.68]],
+        ["Lushan", "China", "China", [115.98, 29.57]],
         ["Wuhan", "China", "China", [114.31, 30.59]],
         ["Huizhou", "China", "China", [114.42, 23.11]],
         ["Zhongshan", "China", "China", [113.39, 22.52]],
@@ -1568,6 +1621,7 @@
         ["New London", "CT", "USA", [-72.10, 41.36]],
         ["Atlantic City", "NJ", "USA", [-74.42, 39.36]],
         ["Columbus", "OH", "USA", [-83.00, 39.96]],
+        ["Pittsburgh", "PA", "USA", [-80.00, 40.44]],
         ["Chicago", "IL", "USA", [-87.63, 41.88]],
         ["Buffalo", "NY", "USA", [-78.88, 42.89]],
         ["Niagara Falls", "NY", "USA", [-79.04, 43.09]],
@@ -1666,6 +1720,45 @@
       const subEl = document.getElementById("journey-sub");
       const replayEl = document.getElementById("replay");
       const viewBtns = [...document.querySelectorAll("[data-view]")];
+      const storyEl = document.getElementById("place-story");
+
+      // ----- stories: a few places carry a short story from stories.json -----
+      function openStory(i) {
+        const p = PLACES[i];
+        if (!p?.story) return;
+        pinned = i;
+        storyEl.querySelector(".nm").textContent = p.name;
+        storyEl.querySelector(".rg").textContent = p.region === p.country ? p.region : `${p.region}, ${p.country}`;
+        storyEl.querySelector(".place-story-text").textContent = p.story;
+        storyEl.hidden = false;
+        kick();
+      }
+      function closeStory() {
+        if (storyEl.hidden) return;
+        pinned = -1;
+        storyEl.hidden = true;
+        kick();
+      }
+      storyEl.querySelector(".place-story-x").addEventListener("click", closeStory);
+      addEventListener("keydown", e => { if (e.key === "Escape") closeStory(); });
+      fetch("stories.json", { cache: "no-cache" })
+        .then(r => r.ok ? r.json() : {})
+        .then(stories => {
+          const links = document.getElementById("story-links");
+          PLACES.forEach((p, i) => {
+            if (typeof stories[p.name] !== "string") return;
+            p.story = stories[p.name];
+            // screen readers can't click a canvas, so each story also gets a (visually hidden) button
+            const b = document.createElement("button");
+            b.type = "button";
+            b.textContent = `Story: ${p.name}`;
+            b.addEventListener("click", () => { setView("visited"); openStory(i); });
+            const li = document.createElement("li");
+            li.append(b);
+            links.append(li);
+          });
+        })
+        .catch(() => {});
       const LABELS = {
         lived: canvas.getAttribute("aria-label"),
         visited: `A world map of ${STATS}: ${VISITED.map(p => p.name).join(", ")}.`,
@@ -1684,6 +1777,8 @@
       let view = "lived", flat = 0, flatTween = null;
       // Visited map: the random spotlight and the place under the pointer
       let spot = null, bag = [], hover = -1, tapTimer = 0;
+      // A place whose story is open stays highlighted (index into PLACES, or -1)
+      let pinned = -1;
       // Flat-map zoom: mapK = zoom factor (1 = whole world), pan = screen offset, mapAnim = eased zoom
       let mapK = 1, pan = [0, 0], mapAnim = null;
       const pointers = new Map();          // active pointers on the map, for drag and pinch
@@ -1824,6 +1919,7 @@
         view = v;
         viewBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.view === v));
         const map = v === "visited";
+        if (!map) closeStory();
         subEl.hidden = map;
         replayEl.hidden = map;
         legendEl.hidden = !map;
@@ -1909,7 +2005,7 @@
 
         if (mode === "map") {
           // The random spotlight runs only at full-world zoom, when nobody is exploring
-          if (flat === 1 && hover < 0 && mapK < 1.05 && !still && (!spot || now - spot.start > SPOT_MS)) nextSpot(now);
+          if (flat === 1 && hover < 0 && pinned < 0 && mapK < 1.05 && !still && (!spot || now - spot.start > SPOT_MS)) nextSpot(now);
           return;
         }
         if (mode !== "story") {
@@ -2070,7 +2166,7 @@
       }
 
       const COLORS = { visited: "#fcd34d", lived: "#22d3ee", next: "#a78bfa" };
-      const placeLabel = p => `${p.name} · ${p.region}${p.ski ? " · ski trip" : ""}`;
+      const placeLabel = p => `${p.name} · ${p.region}${p.ski ? " · ski trip" : ""}${p.story ? "  ✦" : ""}`;
 
       function drawVisited(now, grow) {
         // Every place as a small glowing dot; lived ones on top
@@ -2100,6 +2196,7 @@
         // Hovered place, or the random spotlight
         let p, a = 1, t = 0;
         if (hover >= 0) p = PLACES[hover];
+        else if (pinned >= 0) p = PLACES[pinned];
         else if (spot) {
           p = VISITED[spot.i];
           t = (now - spot.start) / SPOT_MS;
@@ -2260,6 +2357,12 @@
           const tap = press && !press.moved && pointers.size === 1 && e.type === "pointerup";
           pointers.delete(e.pointerId);
           if (pointers.size < 2) pinch = null;
+          if (tap && press.type !== "touch") {
+            // a click on a ✦ place opens its story; a click anywhere else closes one
+            const h = nearestPlace(e, 12);
+            if (h >= 0 && PLACES[h].story) openStory(h);
+            else closeStory();
+          }
           if (tap && press.type === "touch") {
             const now = performance.now(), pt = local(e);
             if (lastTap && now - lastTap.t < 320 && Math.hypot(pt[0] - lastTap.at[0], pt[1] - lastTap.at[1]) < 30) {
@@ -2269,6 +2372,7 @@
               lastTap = { t: now, at: pt };
               // single tap: show the nearest place for a few seconds
               hover = nearestPlace(e, 22);
+              if (hover >= 0 && PLACES[hover].story) openStory(hover);
               clearTimeout(tapTimer);
               tapTimer = setTimeout(() => { hover = -1; spot = null; }, 3000);
             }
