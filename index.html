@@ -1888,6 +1888,8 @@
       function startPhase(p, now) {
         phase = p;
         phaseStart = now;
+        // A new leg starts from nothing (left at 1, the next leg would flash in full for a frame)
+        if (p === "draw") progress = 0;
         if (p === "fly") {
           const v = legView(leg);
           flyTo(v.rot, v.zoom, 1100, now);
