@@ -412,7 +412,9 @@
 
     /* ---------- Panels ---------- */
     main { flex: 1; }
-    section { padding: 40px 0 8px; animation: fade-in .4s ease; }
+    /* On desktop each tab starts level with the profile card; on narrow screens, a gap below the star line */
+    section { padding: 0 0 8px; animation: fade-in .4s ease; }
+    @media (max-width: 900px) { section { padding-top: 20px; } }
     section[hidden] { display: none; }
     @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } }
     /* A swiped-to panel slides in from the side the finger came from */
@@ -429,7 +431,7 @@
       gap: 16px;
       margin-bottom: 18px;
     }
-    .more-end { margin-top: 28px; text-align: center; }
+    .more-end { margin-top: 28px; text-align: right; }
     .more {
       font-size: 0.8125rem;
       font-weight: 600;
