@@ -17,5 +17,23 @@
     "link": "https://medium.com/@wei.rui828/forget-the-formulas-an-intuitive-guide-to-time-series-modeling-arma-4e30ee08b276",
     "date": "2026-04-28",
     "summary": "Forget the Greek letters: an ARMA model is two forces. Inertia, where today follows yesterday, and echoes, where a past surprise keeps shaking the system for a while. Plus how to read the ACF and PACF plots to choose the model’s size."
+  },
+  {
+    "title": "Tigers, Ghosting, and Bayes’ Theorem",
+    "link": "https://medium.com/@wei.rui828/tigers-ghosting-and-bayes-theorem-ae2c70c9364f",
+    "date": "2026-06-11",
+    "summary": "The same roar in the dark means “tiger” in a forest temple and “the TV” on your couch at home. Bayes’ theorem is the tug-of-war between what you already believed and what you just saw, explained with tigers, ghosting, and the Monty Hall problem."
+  },
+  {
+    "title": "Logistic Regression is Just Linear Regression with a Midlife Crisis",
+    "link": "https://medium.com/@wei.rui828/logistic-regression-is-just-linear-regression-with-a-midlife-crisis-38dfc980a72f",
+    "date": "2026-05-26",
+    "summary": "Why does classification suddenly bring sigmoid, cross-entropy and maximum likelihood? Each piece of logistic regression fixes one concrete problem with using linear regression to classify, until it couldn’t have been built any other way."
+  },
+  {
+    "title": "Mastering the Precision-Recall Trade-Off: A Tale of Customer Support and Real Estate",
+    "link": "https://medium.com/@wei.rui828/mastering-the-precision-recall-trade-off-a-tale-of-customer-support-and-real-estate-318f863b7ded",
+    "date": "2026-05-20",
+    "summary": "Is a false alarm or a missed case worse? A support bot that must never miss an angry customer, and a house hunter who must never buy a bad house, push the same threshold in opposite directions."
   }
 ]

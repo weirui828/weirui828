@@ -1385,7 +1385,7 @@
 
         // Older posts as quiet rows
         const rows = el("ul", "glass post-rows");
-        rows.append(...older.slice(0, 5).map(({ title, link: href, date }) => {
+        rows.append(...older.map(({ title, link: href, date }) => {
           const a = link("post-row", href);
           a.append(time(date), el("span", "t", title), el("span", "arrow", "→"));
           const li = el("li");
